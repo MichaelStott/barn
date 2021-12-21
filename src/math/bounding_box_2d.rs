@@ -1,4 +1,4 @@
-use crate::barn::math::vector2::Vector2;
+use crate::math::vector2::Vector2;
 
 #[derive(Clone)]
 pub struct BoundingBox2D {

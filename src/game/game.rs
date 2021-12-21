@@ -1,7 +1,7 @@
 use sdl2::render::Canvas;
 use sdl2::ttf::Sdl2TtfContext;
-use crate::State;
-use crate::Context;
+use crate::game::state::State;
+use crate::game::context::Context;
 use sdl2::video::GLContext;
 use std::time::Duration;
 use sdl2::EventPump;

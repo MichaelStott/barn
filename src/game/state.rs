@@ -1,4 +1,4 @@
-use crate::barn::game::context::Context;
+use crate::game::context::Context;
 
 use sdl2::render::WindowCanvas;
 

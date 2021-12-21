@@ -1,7 +1,7 @@
-use crate::barn::fonts::font_details::FontDetails;
-use crate::barn::game::game::Game;
-use crate::barn::game::state::State;
-use crate::barn::input::keyboard_handler::KeyboardHandler;
+use crate::fonts::font_details::FontDetails;
+use crate::game::game::Game;
+use crate::game::state::State;
+use crate::input::keyboard_handler::KeyboardHandler;
 
 use sdl2::mixer::Chunk;
 use sdl2::image::LoadTexture;
