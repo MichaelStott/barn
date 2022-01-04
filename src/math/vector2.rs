@@ -8,16 +8,15 @@ pub struct Vector2 {
 
 impl Vector2 {
 
-    pub fn zero() -> Vector2 {
-        Vector2{x: 0.0, y: 0.0}
-    }
+    pub const UP: Vector2 = Vector2{x: 0.0, y: 1.0};
+    pub const RIGHT: Vector2 = Vector2{x: 1.0, y: 0.0};
+    pub const ZERO: Vector2 = Vector2{x: 0.0, y: 0.0};
 
-    pub fn right() -> Vector2 {
-        Vector2{x: 1.0, y: 0.0}
-    }
-
-    pub fn up() -> Vector2 {
-        Vector2{x: 0.0, y: 1.0}
+    pub const fn new(x: f32, y: f32) -> Vector2 {
+        Vector2 {
+            x: x, 
+            y: y
+        }
     }
 
     pub fn length(&mut self) -> f32 {

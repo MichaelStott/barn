@@ -1,73 +1,50 @@
-use sdl2::render::Canvas;
-use sdl2::ttf::Sdl2TtfContext;
+use crate::audio;
+use crate::graphics::sdl_renderer::SDLRenderer;
+use crate::graphics::barn_gfx::BarnGFX;
 use crate::game::state::State;
 use crate::game::context::Context;
-use sdl2::video::GLContext;
+
 use std::time::Duration;
 use sdl2::EventPump;
-use sdl2::video::Window;
-use sdl2::VideoSubsystem;
-use sdl2::Sdl;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::video::FullscreenType;
-use sdl2::mixer::{InitFlag, AUDIO_S16LSB, DEFAULT_CHANNELS};
 
 pub struct Game {
-    events: EventPump,
-    _gl_context: GLContext,
-    _video_subsys: VideoSubsystem,
-    pub _canvas: Canvas<Window>,
-    _sdl: Sdl,
+    pub bgfx: BarnGFX,
+    events: EventPump
 }
 
 impl Game {
 
     pub fn new(window_title: &String, window_width: u32, window_height: u32, fullscreen: bool) -> Self {
         // Initialize window and graphics context.
-        let _sdl = sdl2::init().unwrap();
-        let _video_subsys =  _sdl.video().unwrap();
-        let mut window = _video_subsys
+        let sdl = sdl2::init().unwrap();
+        let video_subsys = sdl.video().unwrap();
+        let mut window = video_subsys
             .window(&window_title, window_width, window_height)
             .opengl()
             .position_centered()
             .build()
             .map_err(|e| e.to_string())
             .unwrap();
-        
-        
         if fullscreen {
             window.set_fullscreen(FullscreenType::True).unwrap();
         }
-        let _gl_context = window.gl_create_context().unwrap();
-        gl::load_with(|s| _video_subsys.gl_get_proc_address(s) as *const std::os::raw::c_void);
-        let mut canvas = window.into_canvas().build().unwrap();
 
-        // Initialize input events.
-        let events = _sdl.event_pump().unwrap();
-
-        // Initialize sound.
-        let frequency = 44_100;
-        let format = AUDIO_S16LSB; // signed 16 bit samples, in little-endian byte order
-        let channels = DEFAULT_CHANNELS; // Stereo
-        let chunk_size = 1_024;
-        sdl2::mixer::open_audio(frequency, format, channels, chunk_size).unwrap();
-        let _mixer_context =
-            sdl2::mixer::init(InitFlag::MP3 | InitFlag::FLAC | InitFlag::MOD | InitFlag::OGG).unwrap();
-        sdl2::mixer::allocate_channels(6);
+        // Create graphics context and input event stream.
+        let bgfx = BarnGFX { sdl: SDLRenderer::new(window.into_canvas().build().unwrap()) };
+        let events = sdl.event_pump().unwrap();
 
         Game {
-            _sdl:  _sdl,
-            _gl_context: _gl_context,
-            _video_subsys: _video_subsys,
-            _canvas: canvas,
+            bgfx: bgfx,
             events: events,
         }
     }
 
     pub fn run(&mut self, mut context: Context, mut state: Box<dyn State>) ->  Result<(), String> {
-        let _gl = gl::load_with(|s| self._video_subsys.gl_get_proc_address(s) as *const std::os::raw::c_void);
         state.on_enter(&mut context);
+        audio::init(6);
         // Main game loop.
         'running: loop {
             // Check if the game loop should be exited.
@@ -83,7 +60,7 @@ impl Game {
             }
             // State handling logic.
             let new_state = context.update(&mut *state, &mut self.events);
-            context.draw(&mut *state, &mut self._canvas);
+            context.draw(&mut *state, &mut self.bgfx);
             match new_state {
                 Some(x) => {
                     state.on_exit(&mut context);
@@ -97,6 +74,7 @@ impl Game {
             }
             ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
         }
+        audio::close();
         Ok(())
     }
 }

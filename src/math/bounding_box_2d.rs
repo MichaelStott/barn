@@ -3,8 +3,8 @@ use crate::math::vector2::Vector2;
 #[derive(Clone)]
 pub struct BoundingBox2D {
     pub origin: Vector2,
-    pub width: i32,
-    pub height: i32
+    pub width: u32,
+    pub height: u32
 }
 
 impl BoundingBox2D {

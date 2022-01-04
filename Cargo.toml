@@ -5,16 +5,18 @@ authors = ["Michael <stottmichael2@gmail.com>"]
 edition = "2018"
 description = "Rust Game Framework"
 license = "MIT"
+resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-gl = "0.14.0"
+ordered-float = "2.1.1"
 rand = "0.7.2"
 log = "0.4.14"
 env_logger = "0.9.0"
 freetype-rs = "0.29.0"
 lazy_static = "1.2.0"
 leak = "0.1.2"
+wgpu = "0.11"
 
 [dependencies.sdl2]
 default-features = false

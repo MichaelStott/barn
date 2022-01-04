@@ -1,13 +1,12 @@
+use crate::graphics::barn_gfx::BarnGFX;
 use crate::game::context::Context;
-
-use sdl2::render::WindowCanvas;
 
 pub trait State {
     // Update game logic.
     fn update(&mut self, context: &mut Context) -> Option<Box<dyn State>>;
 
     // Render the game entities.
-    fn draw(&mut self, context: &mut Context, canvas: &mut WindowCanvas);
+    fn draw(&mut self, context: &mut Context, bgfx: &mut BarnGFX);
 
     // Perform any initialization here.
     fn on_enter(&mut self, context: &mut Context);
