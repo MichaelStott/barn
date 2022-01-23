@@ -17,8 +17,12 @@ pub fn init(number_of_channels: i32) {
 }
 
 pub fn close() {
-    sdl2::mixer::close_audio();
-    unsafe { MIXER_INIT = false; }
+    unsafe {
+        if MIXER_INIT {
+            sdl2::mixer::close_audio();    
+            MIXER_INIT = false; 
+        }
+    }
 }
 
 pub fn play_music(file: String) {

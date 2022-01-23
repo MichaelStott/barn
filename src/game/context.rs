@@ -23,11 +23,15 @@ pub struct Context {
     textures: HashMap<String, SdlTexture>,
     sounds: HashMap<String, SdlSound>,
     pub input: KeyboardHandler,
-    pub screen_width: u32,
-    pub screen_height: u32,
 }
 
 impl Context {
+    /**
+     * Due to ownership issues of concurrent hashmap access, this needs to be rewritten 
+     * as an interface with default implementations for update and draw. State objects 
+     * can then downcast to get specific resources.
+     */
+
     pub fn new(
         game: &mut Game
     ) -> Self {
@@ -39,8 +43,6 @@ impl Context {
             textures: HashMap::new(),
             sounds: HashMap::new(),
             fonts: HashMap::new(),
-            screen_width: game.bgfx.sdl.get_surface_width(),
-            screen_height: game.bgfx.sdl.get_surface_height()
         }
     }
 
@@ -62,7 +64,6 @@ impl Context {
 
     pub fn load_font(&mut self, details: FontDetails) -> &SdlFont {
         if !self.fonts.contains_key(&details) {
-
             self.fonts.insert(details.clone(), 
                 self.ttf_context.load_font(details.clone().path, details.clone().size).unwrap());
         }

@@ -4,6 +4,8 @@ use crate::graphics::SdlTexture;
 use crate::graphics::fill_type::FillType;
 use crate::math::bounding_box_2d::BoundingBox2D;
 use crate::graphics::color::Color;
+use crate::fonts::SdlFont;
+use crate::fonts::font_details::FontDetails;
 
 use sdl2::rect::Rect;
 use sdl2::rect::Point;
@@ -70,13 +72,13 @@ impl SDLRenderer {
         self.draw_rect(bb.origin.x as i32, bb.origin.y as i32, bb.width, bb.height, FillType::LINE, offset)
     }
 
-    pub fn draw_texture(&mut self, texture: SdlTexture, src_rect: SdlRect, dst_rect: SdlRect) {
+    pub fn draw_texture(&mut self, texture: &mut SdlTexture, src_rect: Option<SdlRect>, dst_rect: Option<SdlRect>) {
         self.canvas
             .copy(&texture, src_rect, dst_rect)
             .unwrap();
     }
 
-    pub fn draw_texture_ex(&mut self, texture: SdlTexture, src_rect: SdlRect, dst_rect: SdlRect, angle: f32,
+    pub fn draw_texture_ex(&mut self, texture: &mut SdlTexture, src_rect: Option<SdlRect>, dst_rect: Option<SdlRect>, angle: f32,
         center: Vector2, flip_horizontal: bool, flip_vertical: bool) {
         self.canvas
             .copy_ex(
@@ -87,7 +89,32 @@ impl SDLRenderer {
             .unwrap();
     }
 
-    pub fn present (&mut self) {
+    pub fn draw_text(&mut self, text: &str, color: Color, font: &SdlFont, font_details: FontDetails, x: f32, y: f32) {
+        let texture_creator = self.canvas.texture_creator();
+        let text_rend = font
+            .render(text)
+            .blended(sdl2::pixels::Color::RGBA(
+                (color.r * 255.0) as u8, 
+                (color.g * 255.0) as u8, 
+                (color.b * 255.0) as u8,  
+                (color.a * 255.0) as u8))
+            .unwrap();
+        let text_tex = texture_creator.create_texture_from_surface(&text_rend).unwrap();
+        self.canvas
+            .copy(
+                &text_tex,
+                None,
+                Rect::new(
+                    x as i32,
+                    y as i32,
+                    text_rend.size().0,
+                    text_rend.size().1,
+                ),
+            )
+            .unwrap();
+    }
+
+    pub fn present(&mut self) {
         self.canvas.present();
     }
 

@@ -7,17 +7,21 @@ description = "Rust Game Framework"
 license = "MIT"
 resolver = "2"
 
+
+[build]
+rustflags = ["-Llib/windows/x64"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 ordered-float = "2.1.1"
-rand = "0.7.2"
+rand = "0.8.4"
 log = "0.4.14"
 env_logger = "0.9.0"
 freetype-rs = "0.29.0"
 lazy_static = "1.2.0"
 leak = "0.1.2"
-wgpu = "0.11"
 
 [dependencies.sdl2]
+version = "0.35.1"
 default-features = false
 features = ["image", "ttf", "mixer", "unsafe_textures"]

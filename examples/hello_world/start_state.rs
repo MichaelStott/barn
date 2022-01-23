@@ -4,8 +4,11 @@ use barn::graphics::fill_type::FillType;
 use barn::graphics::color::Color;
 use barn::game::state::State;
 use barn::game::context::Context;
+use barn::fonts::font_details::FontDetails;
 
-pub struct StartState {}
+pub struct StartState {
+    pub font_details: FontDetails
+}
 
 impl State for StartState {
     fn update(&mut self, context: &mut Context) -> Option<Box<dyn State>> { None }
@@ -14,13 +17,22 @@ impl State for StartState {
         bgfx.sdl.set_draw_color(Color::SKY);
         bgfx.sdl.clear();
 
-        bgfx.sdl.set_draw_color(Color::RED);
-        bgfx.sdl.draw_rect(0, 0, 20, 20, FillType::FILL, true);
+        let font = context.load_font(self.font_details);
+        bgfx.sdl.draw_text(
+            "Hello World!",
+            Color::BLACK,
+            font,
+            self.font_details,
+            75.0,
+            225.0
+        );
 
         bgfx.sdl.present();
     }
 
-    fn on_enter(&mut self, context: &mut Context) {}
+    fn on_enter(&mut self, context: &mut Context) {
+        context.load_font(self.font_details);
+    }
 
     fn on_exit(&mut self, context: &mut Context) {}
 

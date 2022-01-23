@@ -8,7 +8,7 @@ use std::time::Duration;
 use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::video::FullscreenType;
+use sdl2::video::{FullscreenType, DisplayMode};
 
 pub struct Game {
     pub bgfx: BarnGFX,
@@ -23,13 +23,14 @@ impl Game {
         let video_subsys = sdl.video().unwrap();
         let mut window = video_subsys
             .window(&window_title, window_width, window_height)
-            .opengl()
             .position_centered()
             .build()
             .map_err(|e| e.to_string())
             .unwrap();
         if fullscreen {
             window.set_fullscreen(FullscreenType::True).unwrap();
+        } else {
+            window.set_fullscreen(FullscreenType::Off).unwrap();
         }
 
         // Create graphics context and input event stream.
@@ -44,7 +45,8 @@ impl Game {
 
     pub fn run(&mut self, mut context: Context, mut state: Box<dyn State>) ->  Result<(), String> {
         state.on_enter(&mut context);
-        audio::init(6);
+        // NOTE: This probably shouldn't happen here...
+        audio::init(8);
         // Main game loop.
         'running: loop {
             // Check if the game loop should be exited.
