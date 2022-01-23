@@ -89,15 +89,15 @@ impl SDLRenderer {
             .unwrap();
     }
 
-    pub fn draw_text(&mut self, text: &str, color: Color, font: &SdlFont, font_details: FontDetails, x: f32, y: f32) {
+    pub fn draw_text(&mut self, text: &str, font: &SdlFont, x: f32, y: f32) {
         let texture_creator = self.canvas.texture_creator();
         let text_rend = font
             .render(text)
             .blended(sdl2::pixels::Color::RGBA(
-                (color.r * 255.0) as u8, 
-                (color.g * 255.0) as u8, 
-                (color.b * 255.0) as u8,  
-                (color.a * 255.0) as u8))
+                (self.draw_color.r * 255.0) as u8, 
+                (self.draw_color.g * 255.0) as u8, 
+                (self.draw_color.b * 255.0) as u8,  
+                (self.draw_color.a * 255.0) as u8))
             .unwrap();
         let text_tex = texture_creator.create_texture_from_surface(&text_rend).unwrap();
         self.canvas

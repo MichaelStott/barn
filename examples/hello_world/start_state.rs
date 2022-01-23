@@ -18,14 +18,8 @@ impl State for StartState {
         bgfx.sdl.clear();
 
         let font = context.load_font(self.font_details);
-        bgfx.sdl.draw_text(
-            "Hello World!",
-            Color::BLACK,
-            font,
-            self.font_details,
-            75.0,
-            225.0
-        );
+        bgfx.sdl.set_draw_color(Color::BLACK);
+        bgfx.sdl.draw_text("Hello World!", font,75.0,225.0);
 
         bgfx.sdl.present();
     }

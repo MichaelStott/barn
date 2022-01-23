@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use crate::graphics::SdlRect;
 use crate::graphics::SdlTexture;
-
 pub struct SdlSprite {
     pub src_rect: SdlRect,
     pub dst_rect: SdlRect,
