@@ -4,7 +4,7 @@ use crate::graphics::barn_gfx::BarnGFX;
 use crate::game::state::State;
 use crate::game::context::Context;
 
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -47,6 +47,8 @@ impl Game {
         state.on_enter(&mut context);
         // NOTE: This probably shouldn't happen here...
         audio::init(8);
+        // Initialize time step handling.
+        let mut prev: Option<Duration> = None;
         // Main game loop.
         'running: loop {
             // Check if the game loop should be exited.
@@ -61,7 +63,8 @@ impl Game {
                 }
             }
             // State handling logic.
-            let new_state = context.update(&mut *state, &mut self.events);
+            let dt = Game::calc_time_step(SystemTime::now().duration_since(UNIX_EPOCH).unwrap(), &mut prev);
+            let new_state = context.update(&mut *state, &mut self.events, dt);
             context.draw(&mut *state, &mut self.bgfx);
             match new_state {
                 Some(x) => {
@@ -74,9 +77,17 @@ impl Game {
                     // No state change has occurred.
                 }
             }
-            ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
         }
         audio::close();
         Ok(())
+    }
+
+    fn calc_time_step(now: Duration, prev: &mut Option<Duration>) -> f32 {
+        let mut dt = 0.0;
+        if *prev != None {
+            dt = (now - prev.unwrap()).as_secs_f32();
+        }
+        *prev = Some(now);
+        return dt;
     }
 }

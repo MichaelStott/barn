@@ -19,6 +19,7 @@ pub struct Snow {
 const SPACING: f32 =  100.0;
 const MAX_VARIANCE: i32 = 50;
 const MIN_VARIANCE: i32 = 25;
+
 impl SnowFallLayer {
 
     pub fn new(dir: Vector2, color: Color, speed: f32, offset: Vector2) -> SnowFallLayer {

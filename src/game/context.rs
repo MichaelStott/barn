@@ -75,12 +75,12 @@ impl Context {
         &mut self.input
     }
 
-    pub fn update(&mut self, state: &mut dyn State, event: &mut EventPump) -> Option<Box<dyn State>>
+    pub fn update(&mut self, state: &mut dyn State, event: &mut EventPump, dt: f32) -> Option<Box<dyn State>>
     where
         Self: std::marker::Sized,
     {
         self.get_input_handler().update(event);
-        state.update(self)
+        state.update(self, dt)
     }
 
     pub fn draw(&mut self, state: &mut dyn State, bgfx: &mut BarnGFX)

@@ -5,13 +5,11 @@ use barn::graphics::fill_type::FillType;
 use barn::graphics::color::Color;
 use barn::game::state::State;
 use barn::game::context::Context;
-use barn::fonts::font_details::FontDetails;
 use barn::math::vector2::Vector2;
 
 use crate::snow::SnowFallLayer;
 
 pub struct StartState {
-    pub font_details: FontDetails,
     pub snow_layer1: SnowFallLayer,
     pub snow_layer2: SnowFallLayer,
     pub snow_layer3: SnowFallLayer,
@@ -20,12 +18,13 @@ pub struct StartState {
 }
 
 impl State for StartState {
-    fn update(&mut self, context: &mut Context) -> Option<Box<dyn State>> { 
-        self.snow_layer1.update(1.0);
-        self.snow_layer2.update(1.0);
-        self.snow_layer3.update(1.0);
+    fn update(&mut self, context: &mut Context, dt: f32) -> Option<Box<dyn State>> { 
+        let snow_speed = 30.0 * dt;
+        self.snow_layer1.update(snow_speed);
+        self.snow_layer2.update(snow_speed);
+        self.snow_layer3.update(snow_speed);
 
-        let speed = 0.2;
+        let speed = 10.0 * dt;
         self.cloud_offset1 += speed;
         self.cloud_offset2 += speed;
         if self.cloud_offset1 >= 500.0 {
@@ -85,7 +84,6 @@ impl State for StartState {
 
     fn on_enter(&mut self, context: &mut Context) {
         // Preload assets.
-        context.load_font(self.font_details);
         context.load_texture(String::from("examples/resources/images/evening_gradient.png"));
         context.load_texture(String::from("examples/resources/images/moon.png"));
         context.load_texture(String::from("examples/resources/images/cloud2.png"));
@@ -98,14 +96,13 @@ impl State for StartState {
 }
 
 impl StartState {
-    pub fn new(fd: FontDetails) -> StartState{
+    pub fn new() -> StartState{
         let dir: Vector2 = Vector2::new(1.0, 1.0).normalize();
         let dir2: Vector2 = Vector2::new(-1.0, 1.0).normalize();
         let color1: Color = Color::new(1.0, 1.0, 1.0, 1.0);
         let color2: Color = Color::new(0.75, 0.75, 0.75, 1.0);
         let color3: Color = Color::new(0.5, 0.5, 0.5, 1.0);
         StartState {
-            font_details: fd,
             snow_layer1: SnowFallLayer::new(dir, color1, 0.75, Vector2::new(15.0, 10.0)),
             snow_layer2: SnowFallLayer::new(dir, color2, 0.5, Vector2::new(-37.4, -4.0)),
             snow_layer3: SnowFallLayer::new(dir2, color3, 0.25, Vector2::new(0.4, -45.7)),

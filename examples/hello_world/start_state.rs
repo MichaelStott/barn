@@ -1,6 +1,5 @@
 
 use barn::graphics::barn_gfx::BarnGFX;
-use barn::graphics::fill_type::FillType;
 use barn::graphics::color::Color;
 use barn::game::state::State;
 use barn::game::context::Context;
@@ -11,7 +10,7 @@ pub struct StartState {
 }
 
 impl State for StartState {
-    fn update(&mut self, context: &mut Context) -> Option<Box<dyn State>> { None }
+    fn update(&mut self, context: &mut Context, dt: f32) -> Option<Box<dyn State>> { None }
 
     fn draw(&mut self, context: &mut Context, bgfx: &mut BarnGFX) {
         bgfx.sdl.set_draw_color(Color::SKY);
@@ -31,4 +30,15 @@ impl State for StartState {
     fn on_exit(&mut self, context: &mut Context) {}
 
     fn get_name(&mut self) -> String { String::from("StartState") }
+}
+
+impl StartState {
+    pub fn new() -> StartState {
+        StartState {
+            font_details: FontDetails {
+                size: 32,
+                path: "examples/resources/fonts/press-start/PressStart2P-vaV7.ttf"
+            }
+        }
+    }
 }

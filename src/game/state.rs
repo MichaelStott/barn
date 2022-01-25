@@ -3,7 +3,7 @@ use crate::game::context::Context;
 
 pub trait State {
     // Update game logic.
-    fn update(&mut self, context: &mut Context) -> Option<Box<dyn State>>;
+    fn update(&mut self, context: &mut Context, dt: f32) -> Option<Box<dyn State>>;
 
     // Render the game entities.
     fn draw(&mut self, context: &mut Context, bgfx: &mut BarnGFX);
