@@ -4,7 +4,7 @@ use barn::graphics::barn_gfx::BarnGFX;
 use barn::graphics::fill_type::FillType;
 use barn::graphics::color::Color;
 use barn::game::state::State;
-use barn::game::context::Context;
+use barn::game::barn_context::BarnContext;
 use barn::math::vector2::Vector2;
 
 use crate::snow::SnowFallLayer;
@@ -17,8 +17,8 @@ pub struct StartState {
     pub cloud_offset2: f32
 }
 
-impl State for StartState {
-    fn update(&mut self, context: &mut Context, dt: f32) -> Option<Box<dyn State>> { 
+impl State<BarnContext> for StartState {
+    fn update(&mut self, context: &mut BarnContext, dt: f32) -> Option<Box<dyn State<BarnContext>>> { 
         let snow_speed = 30.0 * dt;
         self.snow_layer1.update(snow_speed);
         self.snow_layer2.update(snow_speed);
@@ -36,7 +36,7 @@ impl State for StartState {
         None
     }
 
-    fn draw(&mut self, context: &mut Context, bgfx: &mut BarnGFX) {
+    fn draw(&mut self, context: &mut BarnContext, bgfx: &mut BarnGFX) {
         bgfx.sdl.set_draw_color(Color::BLACK);
         bgfx.sdl.clear();
 
@@ -82,7 +82,7 @@ impl State for StartState {
         bgfx.sdl.present();
     }
 
-    fn on_enter(&mut self, context: &mut Context) {
+    fn on_enter(&mut self, context: &mut BarnContext) {
         // Preload assets.
         context.load_texture(String::from("examples/resources/images/evening_gradient.png"));
         context.load_texture(String::from("examples/resources/images/moon.png"));
@@ -90,7 +90,7 @@ impl State for StartState {
         context.load_texture(String::from("examples/resources/images/snow_ground_1.png"));
     }
 
-    fn on_exit(&mut self, context: &mut Context) {}
+    fn on_exit(&mut self, context: &mut BarnContext) {}
 
     fn get_name(&mut self) -> String { String::from("StartState") }
 }

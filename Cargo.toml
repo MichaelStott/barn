@@ -6,10 +6,7 @@ edition = "2018"
 description = "Rust Game Framework"
 license = "MIT"
 resolver = "2"
-
-
-[build]
-rustflags = ["-Llib/windows/x64"]
+links = "sdl2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]

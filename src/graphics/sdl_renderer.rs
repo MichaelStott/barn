@@ -5,7 +5,6 @@ use crate::graphics::fill_type::FillType;
 use crate::math::bounding_box_2d::BoundingBox2D;
 use crate::graphics::color::Color;
 use crate::fonts::SdlFont;
-use crate::fonts::font_details::FontDetails;
 
 use sdl2::rect::Rect;
 use sdl2::rect::Point;

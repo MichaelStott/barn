@@ -3,16 +3,17 @@ use crate::graphics::sdl_renderer::SDLRenderer;
 use crate::graphics::barn_gfx::BarnGFX;
 use crate::game::state::State;
 use crate::game::context::Context;
+use crate::game::barn_context::BarnContext;
 
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::video::{FullscreenType, DisplayMode};
+use sdl2::video::FullscreenType;
 
 pub struct Game {
     pub bgfx: BarnGFX,
-    events: EventPump
+    events: EventPump,
 }
 
 impl Game {
@@ -23,10 +24,12 @@ impl Game {
         let video_subsys = sdl.video().unwrap();
         let mut window = video_subsys
             .window(&window_title, window_width, window_height)
+            .opengl()
             .position_centered()
             .build()
             .map_err(|e| e.to_string())
             .unwrap();
+        // Handle fullscreen option.
         if fullscreen {
             window.set_fullscreen(FullscreenType::True).unwrap();
         } else {
@@ -39,15 +42,16 @@ impl Game {
 
         Game {
             bgfx: bgfx,
-            events: events,
+            events: events
+
         }
     }
 
-    pub fn run(&mut self, mut context: Context, mut state: Box<dyn State>) ->  Result<(), String> {
+    pub fn run(&mut self, mut context: BarnContext, mut state: Box<dyn State<BarnContext>>) ->  Result<(), String>{
         state.on_enter(&mut context);
         // NOTE: This probably shouldn't happen here...
         audio::init(8);
-        // Initialize time step handling.
+        // Initialize timestep marker... (first timestep is always zero)
         let mut prev: Option<Duration> = None;
         // Main game loop.
         'running: loop {
@@ -62,8 +66,9 @@ impl Game {
                     _ => {}
                 }
             }
-            // State handling logic.
+            // Determine timestep.
             let dt = Game::calc_time_step(SystemTime::now().duration_since(UNIX_EPOCH).unwrap(), &mut prev);
+            // State handling logic.
             let new_state = context.update(&mut *state, &mut self.events, dt);
             context.draw(&mut *state, &mut self.bgfx);
             match new_state {

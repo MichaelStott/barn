@@ -2,17 +2,17 @@
 use barn::graphics::barn_gfx::BarnGFX;
 use barn::graphics::color::Color;
 use barn::game::state::State;
-use barn::game::context::Context;
+use barn::game::barn_context::BarnContext;
 use barn::fonts::font_details::FontDetails;
 
 pub struct StartState {
     pub font_details: FontDetails
 }
 
-impl State for StartState {
-    fn update(&mut self, context: &mut Context, dt: f32) -> Option<Box<dyn State>> { None }
+impl State<BarnContext> for StartState {
+    fn update(&mut self, context: &mut BarnContext, dt: f32) -> Option<Box<dyn State<BarnContext>>> { None }
 
-    fn draw(&mut self, context: &mut Context, bgfx: &mut BarnGFX) {
+    fn draw(&mut self, context: &mut BarnContext, bgfx: &mut BarnGFX) {
         bgfx.sdl.set_draw_color(Color::SKY);
         bgfx.sdl.clear();
 
@@ -23,11 +23,11 @@ impl State for StartState {
         bgfx.sdl.present();
     }
 
-    fn on_enter(&mut self, context: &mut Context) {
+    fn on_enter(&mut self, context: &mut BarnContext) {
         context.load_font(self.font_details);
     }
 
-    fn on_exit(&mut self, context: &mut Context) {}
+    fn on_exit(&mut self, context: &mut BarnContext) {}
 
     fn get_name(&mut self) -> String { String::from("StartState") }
 }
