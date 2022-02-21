@@ -13,6 +13,8 @@ use sdl2::render::TextureCreator;
 use sdl2::video::Window;
 use sdl2::render::Canvas;
 
+use super::sdl_sprite::SdlSprite;
+
 // Wrapper struct for SDL2-based rendering.
 pub struct SDLRenderer {
     canvas: Canvas<Window>,
@@ -82,6 +84,23 @@ impl SDLRenderer {
         self.canvas
             .copy_ex(
                 &texture, src_rect, dst_rect,
+                angle as f64, Point::new(center.x as i32, center.y as i32),
+                flip_horizontal, flip_vertical
+            )
+            .unwrap();
+    }
+
+    pub fn draw_sprite(&mut self, texture: &mut SdlTexture, sprite: &mut SdlSprite) {
+        self.canvas
+            .copy(&texture, sprite.get_src_rect(), sprite.get_dst_rect())
+            .unwrap();
+    }
+    
+    pub fn draw_sprite_ex(&mut self, texture: &mut SdlTexture, sprite: &mut SdlSprite, angle: f32,
+        center: Vector2, flip_horizontal: bool, flip_vertical: bool) {
+        self.canvas
+            .copy_ex(
+                &texture, sprite.get_src_rect(), sprite.get_dst_rect(),
                 angle as f64, Point::new(center.x as i32, center.y as i32),
                 flip_horizontal, flip_vertical
             )

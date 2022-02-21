@@ -8,7 +8,6 @@ pub struct SdlSprite {
     pub angle: f32,
     pub flip_horizontal: bool,
     pub flip_vertical: bool,
-    texture: SdlTexture,
     animations: HashMap<String, SdlSpriteAnimation>,
     active_animation_name: String, 
     play_animation: bool
@@ -31,9 +30,8 @@ pub struct SdlSpriteFrame {
 
 impl SdlSprite {
 
-    pub fn new(texture: SdlTexture, src_rect: SdlRect, dst_rect: SdlRect) -> SdlSprite {
+    pub fn new(src_rect: SdlRect, dst_rect: SdlRect) -> SdlSprite {
         SdlSprite {
-            texture: texture,
             src_rect: src_rect, 
             dst_rect: dst_rect,
             angle: 0.0, 

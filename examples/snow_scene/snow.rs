@@ -1,5 +1,3 @@
-use std::char::MAX;
-
 use barn::math::vector2::Vector2;
 use barn::graphics::color::Color;
 

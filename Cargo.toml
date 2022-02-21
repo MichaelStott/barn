@@ -6,7 +6,6 @@ edition = "2018"
 description = "Rust Game Framework"
 license = "MIT"
 resolver = "2"
-links = "sdl2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
@@ -19,6 +18,12 @@ lazy_static = "1.2.0"
 leak = "0.1.2"
 
 [dependencies.sdl2]
-version = "0.35.1"
+version = "0.35.2"
 default-features = false
 features = ["image", "ttf", "mixer", "unsafe_textures"]
+
+[[example]]
+name = "hello_world"
+
+[[example]]
+name = "snow_scene"

@@ -29,6 +29,7 @@ impl Game {
             .build()
             .map_err(|e| e.to_string())
             .unwrap();
+        
         // Handle fullscreen option.
         if fullscreen {
             window.set_fullscreen(FullscreenType::True).unwrap();
@@ -43,7 +44,6 @@ impl Game {
         Game {
             bgfx: bgfx,
             events: events
-
         }
     }
 

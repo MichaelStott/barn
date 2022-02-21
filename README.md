@@ -1,6 +1,6 @@
 # Barn
 
-Rust framework for 2D game development. Heavily inspired by XNA/Monogame/LibGDX.
+Rust framework for retro 2D game development. Heavily inspired by XNA/Monogame/LibGDX.
 
 ![barn](res/barn.jpg)
 
