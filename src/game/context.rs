@@ -8,11 +8,7 @@ use super::state::State;
 pub trait Context { 
     type T: Context;
 
-    fn update(&mut self, state: &mut dyn State<Self::T>, event: &mut EventPump, dt: f32) -> Option<Box<dyn State<Self::T>>>
-    where
-        Self: std::marker::Sized;
+    fn update(&mut self, state: &mut dyn State<Self::T>, event: &mut EventPump, dt: f32) -> Option<Box<dyn State<Self::T>>> where Self: std::marker::Sized;
 
-    fn draw(&mut self, state: &mut dyn State<Self::T>, bgfx: &mut BarnGFX)
-    where
-        Self: std::marker::Sized;
+    fn draw(&mut self, state: &mut dyn State<Self::T>, bgfx: &mut BarnGFX) where Self: std::marker::Sized;
 }

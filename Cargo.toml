@@ -27,3 +27,6 @@ name = "hello_world"
 
 [[example]]
 name = "snow_scene"
+
+[[example]]
+name = "sprite_animation"

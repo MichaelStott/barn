@@ -14,8 +14,6 @@ use sdl2::video::Window;
 use sdl2::render::Canvas;
 
 use super::sdl_sprite::SdlSprite;
-
-// Wrapper struct for SDL2-based rendering.
 pub struct SDLRenderer {
     canvas: Canvas<Window>,
     draw_color: Color,

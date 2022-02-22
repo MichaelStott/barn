@@ -1,15 +1,12 @@
 use std::collections::HashMap;
 
 use crate::graphics::SdlRect;
-use crate::graphics::SdlTexture;
+
 pub struct SdlSprite {
-    pub src_rect: SdlRect,
-    pub dst_rect: SdlRect,
-    pub angle: f32,
-    pub flip_horizontal: bool,
-    pub flip_vertical: bool,
-    animations: HashMap<String, SdlSpriteAnimation>,
+    pub animations: HashMap<String, SdlSpriteAnimation>,
     active_animation_name: String, 
+    src: SdlRect,
+    dst: SdlRect,
     play_animation: bool
 }
 
@@ -23,20 +20,17 @@ pub struct SdlSpriteAnimation {
 
 #[derive(Clone, Copy)]
 pub struct SdlSpriteFrame {
-    pub src_rect: SdlRect,
-    pub dst_rect: SdlRect,
+    pub src: SdlRect,
+    pub dst: SdlRect,
     pub duration: f32
 }
 
 impl SdlSprite {
 
-    pub fn new(src_rect: SdlRect, dst_rect: SdlRect) -> SdlSprite {
+    pub fn new(src: SdlRect, dst: SdlRect) -> SdlSprite {
         SdlSprite {
-            src_rect: src_rect, 
-            dst_rect: dst_rect,
-            angle: 0.0, 
-            flip_horizontal: false,
-            flip_vertical: false,
+            src: src, 
+            dst: dst,
             play_animation: false,
             animations: HashMap::new(),
             active_animation_name: String::from(""),
@@ -45,25 +39,26 @@ impl SdlSprite {
 
     pub fn play_animation(&mut self, name: String, repeat: bool) {
         if self.animations.contains_key(&name) {
-            self.animations.get_mut(&name).unwrap().repeat = repeat;
+            self.active_animation_name = name.clone();
+            self.animations.get_mut(&name).unwrap().repeat = repeat; 
             self.play_animation = true;
         }
     }
 
     pub fn get_src_rect(&mut self) -> SdlRect {
-        let mut result = self.src_rect;
+        let mut result = self.src;
         if self.play_animation {
             let frame = self.animations.get_mut(&self.active_animation_name).unwrap().current_frame();
-            result = frame.src_rect;
+            result = frame.src;
         }
         result
     }
 
     pub fn get_dst_rect(&mut self) -> SdlRect {
-        let mut result = self.dst_rect;
+        let mut result = self.dst;
         if self.play_animation {
             let frame = self.animations.get_mut(&self.active_animation_name).unwrap().current_frame();
-            result = frame.dst_rect;
+            result = frame.dst;
         }
         result
     }
@@ -84,7 +79,7 @@ impl SdlSpriteAnimation {
 
     pub fn tick(&mut self, dt: f32) {
         self.animation_timer += dt;
-        if self.animation_timer > self.total_duration {
+        if self.animation_timer > self.total_duration && self.repeat {
             self.animation_timer %= self.total_duration;
         }
     }
@@ -94,15 +89,18 @@ impl SdlSpriteAnimation {
     }
 
     pub fn current_frame(&mut self) -> SdlSpriteFrame {
-        // TODO: Lazy implementation. Optimize this.
         let mut index = 0;
         let mut current_duration = 0.0;
+        let length = self.frames.len();
         for frame in self.frames.iter_mut() {
             if current_duration + frame.duration  >= self.animation_timer {
                 break;
             } else {
                 current_duration += frame.duration;
-                index += 1;
+                if index + 1 < length {
+                    index += 1;
+                }
+                
             }
         }
         *self.frames.get(index).unwrap()
