@@ -19,6 +19,7 @@ pub struct StartState {
 
 impl State<BarnContext> for StartState {
     fn update(&mut self, context: &mut BarnContext, dt: f32) -> Option<Box<dyn State<BarnContext>>> { 
+        // Determine player direction from user input.
         let mut vel = Vector2::ZERO;
         if context.get_input_handler().key_pressed(&SdlKeycode::Down) {
             vel.y += dt * PLAYER_SPEED;
@@ -32,6 +33,7 @@ impl State<BarnContext> for StartState {
         if context.get_input_handler().key_pressed(&SdlKeycode::Left) {
             vel.x -= dt * PLAYER_SPEED;
         }
+        // Resolve any collisions with bounding boxes.
         self.player.bb.resolve_bb_intersect(&mut self.tile.bb, &mut vel);
         None 
     }
