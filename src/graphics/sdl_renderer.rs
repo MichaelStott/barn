@@ -67,7 +67,7 @@ impl SDLRenderer {
         }
     }
 
-    pub fn draw_bounding_box(&mut self, bb: BoundingBox2D, offset: bool) {
+    pub fn draw_bounding_box(&mut self, bb: &mut BoundingBox2D, offset: bool) {
         self.draw_rect(bb.origin.x as i32, bb.origin.y as i32, bb.width, bb.height, FillType::LINE, offset)
     }
 

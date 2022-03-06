@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::graphics::SdlRect;
 
 pub struct SdlSprite {
-    pub animations: HashMap<String, SdlSpriteAnimation>,
+    animations: HashMap<String, SdlSpriteAnimation>,
     active_animation_name: String, 
     src: SdlRect,
     dst: SdlRect,
@@ -15,7 +15,8 @@ pub struct SdlSpriteAnimation {
     frames: Vec<SdlSpriteFrame>,
     total_duration: f32,
     repeat: bool,
-    animation_timer: f32
+    animation_timer: f32,
+    play: bool
 }
 
 #[derive(Clone, Copy)]
@@ -38,11 +39,24 @@ impl SdlSprite {
     }
 
     pub fn play_animation(&mut self, name: String, repeat: bool) {
-        if self.animations.contains_key(&name) {
+        if self.animations.contains_key(&name) && self.active_animation_name != name {
             self.active_animation_name = name.clone();
+            self.animations.get_mut(&name).unwrap().reset();
             self.animations.get_mut(&name).unwrap().repeat = repeat; 
-            self.play_animation = true;
         }
+        self.play_animation = true;
+    }
+    
+    pub fn pause_animation(&mut self) {
+        self.get_active_animation().unwrap().pause();
+    }
+
+    pub fn add_animation(&mut self, animation: SdlSpriteAnimation, name: String) {
+        self.animations.insert(name, animation);
+    }
+
+    pub fn get_active_animation(&mut self) -> Option<&mut SdlSpriteAnimation> {
+        self.animations.get_mut(&self.active_animation_name)
     }
 
     pub fn get_src_rect(&mut self) -> SdlRect {
@@ -74,18 +88,17 @@ impl SdlSpriteAnimation {
             total_duration: duration,
             repeat: repeat,
             animation_timer: 0.0,
+            play: true
         }
     }
 
     pub fn tick(&mut self, dt: f32) {
-        self.animation_timer += dt;
-        if self.animation_timer > self.total_duration && self.repeat {
-            self.animation_timer %= self.total_duration;
+        if self.play {
+            self.animation_timer += dt;
+            if self.animation_timer > self.total_duration && self.repeat {
+                self.animation_timer %= self.total_duration;
+            }
         }
-    }
-
-    pub fn reset(&mut self) {
-        self.animation_timer = 0.0;
     }
 
     pub fn current_frame(&mut self) -> SdlSpriteFrame {
@@ -104,5 +117,17 @@ impl SdlSpriteAnimation {
             }
         }
         *self.frames.get(index).unwrap()
+    }
+
+    pub fn play(&mut self) {
+        self.play = true;
+    }
+
+    pub fn pause(&mut self) {
+        self.play = false;
+    }
+
+    pub fn reset(&mut self) {
+        self.animation_timer = 0.0;
     }
 }

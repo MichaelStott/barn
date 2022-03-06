@@ -30,3 +30,6 @@ name = "snow_scene"
 
 [[example]]
 name = "sprite_animation"
+
+[[example]]
+name = "collision"

@@ -2,7 +2,7 @@
 use barn::graphics::sdl_sprite::{SdlSprite, SdlSpriteFrame, SdlSpriteAnimation};
 use barn::graphics::barn_gfx::BarnGFX;
 use barn::graphics::color::Color;
-use barn::graphics::{SdlRect, SdlTexture};
+use barn::graphics::{SdlRect};
 use barn::game::state::State;
 use barn::game::barn_context::BarnContext;
 
@@ -12,7 +12,7 @@ pub struct StartState {
 
 impl State<BarnContext> for StartState {
     fn update(&mut self, context: &mut BarnContext, dt: f32) -> Option<Box<dyn State<BarnContext>>> { 
-        self.sprite.animations.get_mut(&String::from("walk_down")).unwrap().tick(dt);
+        self.sprite.get_active_animation().unwrap().tick(dt);
         None 
     }
 
@@ -39,14 +39,21 @@ impl StartState {
             SdlRect::new(0, 0, 9, 15),
             SdlRect::new(0, 0, 9, 15)
         );
-        let mut frames: Vec<SdlSpriteFrame> = Vec::new();
-        frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(18, 0, 9, 15), duration: 0.2});
-        frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(9, 0, 9, 15), duration: 0.2});
-        frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(27, 0, 9, 15), duration: 0.2});
-        frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(9, 0, 9, 15), duration: 0.2});
-        let mut anim: SdlSpriteAnimation = SdlSpriteAnimation::new(frames, true);
-        sprite.animations.insert(String::from("walk_down"), anim);
-        sprite.play_animation(String::from("walk_down"), true);
+        let mut walk_down_frames: Vec<SdlSpriteFrame> = Vec::new();
+        let mut walk_up_frames: Vec<SdlSpriteFrame> = Vec::new();
+        walk_down_frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(18, 0, 9, 15), duration: 0.2});
+        walk_down_frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(9, 0, 9, 15), duration: 0.2});
+        walk_down_frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(27, 0, 9, 15), duration: 0.2});
+        walk_down_frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(9, 0, 9, 15), duration: 0.2});
+        let walk_down_anim: SdlSpriteAnimation = SdlSpriteAnimation::new(walk_down_frames, true);
+        sprite.add_animation(walk_down_anim, String::from("walk_down"));
+        walk_up_frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(18, 0, 9, 15), duration: 0.2});
+        walk_up_frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(9, 0, 9, 15), duration: 0.2});
+        walk_up_frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(27, 0, 9, 15), duration: 0.2});
+        walk_up_frames.push(SdlSpriteFrame{dst: SdlRect::new(0, 0, 36, 60), src: SdlRect::new(9, 0, 9, 15), duration: 0.2});
+        let walk_up_anim: SdlSpriteAnimation = SdlSpriteAnimation::new(walk_up_frames, true);
+        sprite.add_animation(walk_up_anim, String::from("walk_up"));
+        sprite.play_animation(String::from("walk_up"), true);
         StartState {
             sprite: sprite
         }
