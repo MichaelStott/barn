@@ -2,6 +2,7 @@
 use crate::player::PLAYER_SPEED;
 use crate::tile::{Tile, TileType};
 use crate::player::Player;
+use barn::graphics::fill_type::FillType;
 use barn::input::SdlKeycode;
 use barn::math::bounding_box_2d::BoundingBox2D;
 use barn::graphics::sdl_sprite::{SdlSprite, SdlSpriteFrame, SdlSpriteAnimation};
@@ -37,6 +38,7 @@ impl State<BarnContext> for StartState {
         }
         // Resolve any collisions with bounding boxes.
         self.player.bb.resolve_bb_intersect(&mut self.tile1.bb, &mut vel);
+        //self.player.bb.resolve_bb_intersect(&mut self.tile2.bb, &mut vel);
         None 
     }
 
@@ -46,11 +48,12 @@ impl State<BarnContext> for StartState {
 
         // Draw player to the screen
         bgfx.sdl.set_draw_color(Color::BLUE);
-        bgfx.sdl.draw_bounding_box(&mut self.player.bb, false);
+        bgfx.sdl.draw_bounding_box(&mut self.player.bb, FillType::FILL, false);
 
         // Draw tile to the screen
         bgfx.sdl.set_draw_color(Color::GREEN);
-        bgfx.sdl.draw_bounding_box(&mut self.tile1.bb, false);
+        bgfx.sdl.draw_bounding_box(&mut self.tile1.bb, FillType::LINE, false);
+        bgfx.sdl.draw_bounding_box(&mut self.tile2.bb, FillType::LINE, false);
 
         bgfx.sdl.present();
     }
@@ -69,7 +72,7 @@ impl StartState {
         StartState {
             player: Player { bb: BoundingBox2D::new(Vector2::ZERO, 50, 50) },
             tile1: Tile::new(TileType::Ground, 200.0, 200.0, 100, 100),
-            tile2: Tile::new(TileType::Ground, 200.0, 200.0, 100, 100)
+            tile2: Tile::new(TileType::Ground, 300.0, 300.0, 100, 100)
         }
     }
 }
