@@ -18,7 +18,7 @@ impl BoundingBox2D {
     /// # Arguments
     ///
     /// * `origin` - Position of top-left corner of bounding box.
-    /// * `width` - Width of bounding box.
+    /// * `width`  - Width of bounding box.
     /// * `height` - Height of bounding box.
     ///
     /// # Examples
@@ -57,6 +57,8 @@ impl BoundingBox2D {
         }
     }
 
+    /// Provides basic sliding collision handling for a moving bounding box 
+    /// against a target bounding box. 
     pub fn resolve_bb_intersect(&mut self, bb: &mut BoundingBox2D, vel: &mut Vector2) {
         // Handle x-axis of collision.
         if vel.x != 0.0 {

@@ -14,27 +14,29 @@ use barn::math::vector2::Vector2;
 
 pub struct StartState {
     player: Player,
-    tile: Tile
+    tile1: Tile,
+    tile2: Tile
 }
 
 impl State<BarnContext> for StartState {
     fn update(&mut self, context: &mut BarnContext, dt: f32) -> Option<Box<dyn State<BarnContext>>> { 
         // Determine player direction from user input.
         let mut vel = Vector2::ZERO;
+        let delta = dt * PLAYER_SPEED;
         if context.get_input_handler().key_pressed(&SdlKeycode::Down) {
-            vel.y += dt * PLAYER_SPEED;
+            vel.y += delta;
         }
         if context.get_input_handler().key_pressed(&SdlKeycode::Up) {
-            vel.y -= dt * PLAYER_SPEED;
+            vel.y -= delta;
         }
         if context.get_input_handler().key_pressed(&SdlKeycode::Right) {
-            vel.x += dt * PLAYER_SPEED;
+            vel.x += delta;
         }
         if context.get_input_handler().key_pressed(&SdlKeycode::Left) {
-            vel.x -= dt * PLAYER_SPEED;
+            vel.x -= delta;
         }
         // Resolve any collisions with bounding boxes.
-        self.player.bb.resolve_bb_intersect(&mut self.tile.bb, &mut vel);
+        self.player.bb.resolve_bb_intersect(&mut self.tile1.bb, &mut vel);
         None 
     }
 
@@ -48,7 +50,7 @@ impl State<BarnContext> for StartState {
 
         // Draw tile to the screen
         bgfx.sdl.set_draw_color(Color::GREEN);
-        bgfx.sdl.draw_bounding_box(&mut self.tile.bb, false);
+        bgfx.sdl.draw_bounding_box(&mut self.tile1.bb, false);
 
         bgfx.sdl.present();
     }
@@ -66,7 +68,8 @@ impl StartState {
     pub fn new() -> StartState {
         StartState {
             player: Player { bb: BoundingBox2D::new(Vector2::ZERO, 50, 50) },
-            tile: Tile::new(TileType::Ground, 200.0, 200.0, 100, 100)
+            tile1: Tile::new(TileType::Ground, 200.0, 200.0, 100, 100),
+            tile2: Tile::new(TileType::Ground, 200.0, 200.0, 100, 100)
         }
     }
 }
