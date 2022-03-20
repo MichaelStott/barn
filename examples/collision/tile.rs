@@ -2,11 +2,13 @@
 use barn::math::vector2::Vector2;
 use barn::math::bounding_box_2d::BoundingBox2D;
 
+#[derive(Clone)]
 pub struct Tile {
     pub bb: BoundingBox2D,
     pub tile_type: TileType
 }
 
+#[derive(Clone)]
 pub enum TileType {
     Ground,
     Water,

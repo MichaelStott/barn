@@ -5,10 +5,8 @@ use crate::player::Player;
 use barn::graphics::fill_type::FillType;
 use barn::input::SdlKeycode;
 use barn::math::bounding_box_2d::BoundingBox2D;
-use barn::graphics::sdl_sprite::{SdlSprite, SdlSpriteFrame, SdlSpriteAnimation};
 use barn::graphics::barn_gfx::BarnGFX;
 use barn::graphics::color::Color;
-use barn::graphics::{SdlRect};
 use barn::game::state::State;
 use barn::game::barn_context::BarnContext;
 use barn::math::vector2::Vector2;
@@ -37,8 +35,8 @@ impl State<BarnContext> for StartState {
             vel.x -= delta;
         }
         // Resolve any collisions with bounding boxes.
-        self.player.bb.resolve_bb_intersect(&mut self.tile1.bb, &mut vel);
-        //self.player.bb.resolve_bb_intersect(&mut self.tile2.bb, &mut vel);
+        let tiles = &mut [self.tile1.bb.clone(), self.tile2.bb.clone()].to_vec();
+        self.player.bb.resolve_bb_intersect(tiles, &mut vel);
         None 
     }
 

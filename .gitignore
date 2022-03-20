@@ -1,2 +1,6 @@
 /target
 Cargo.lock
+# Ignore SDL2 dependencies
+/*.dll
+/*.lib
+README-SDL.txt

@@ -59,29 +59,33 @@ impl BoundingBox2D {
 
     /// Provides basic sliding collision handling for a moving bounding box 
     /// against a target bounding box. 
-    pub fn resolve_bb_intersect(&mut self, bb: &mut BoundingBox2D, vel: &mut Vector2) {
+    pub fn resolve_bb_intersect(&mut self, bbs: &mut Vec<BoundingBox2D>, vel: &mut Vector2) {
         // Handle x-axis of collision.
         if vel.x != 0.0 {
             self.origin.x += vel.x;
-            if self.intersects_box(bb) {
-                let dir: f32 = if vel.x > 0.0 { -1.0 } else { 1.0 };
-                self.origin.x = if dir == 1.0 {
-                    (bb.origin.x + bb.width as f32) as f32
-                } else {
-                    (bb.origin.x - self.width as f32) as f32
-                };
+            for bb in bbs.iter_mut() {
+                if self.intersects_box(bb) {
+                    let dir: f32 = if vel.x > 0.0 { -1.0 } else { 1.0 };
+                    self.origin.x = if dir == 1.0 {
+                        (bb.origin.x + bb.width as f32) as f32
+                    } else {
+                        (bb.origin.x - self.width as f32) as f32
+                    };
+                }
             }
         }
         // Handle y-axis of collision
         if vel.y != 0.0 {
             self.origin.y += vel.y;
-            if self.intersects_box(bb) {
-                let dir: f32 = if vel.y > 0.0 { -1.0 } else { 1.0 };
-                self.origin.y = if dir == 1.0 {
-                    (bb.origin.y + (bb.height) as f32) as f32
-                } else {
-                    (bb.origin.y - (self.height) as f32) as f32
-                };
+            for bb in bbs.iter_mut() {
+                if self.intersects_box(bb) {
+                    let dir: f32 = if vel.y > 0.0 { -1.0 } else { 1.0 };
+                    self.origin.y = if dir == 1.0 {
+                        (bb.origin.y + (bb.height) as f32) as f32
+                    } else {
+                        (bb.origin.y - (self.height) as f32) as f32
+                    };
+                }
             }
         }
     }

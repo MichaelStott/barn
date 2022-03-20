@@ -15,7 +15,7 @@ impl Vector2 {
     pub const RIGHT: Vector2 = Vector2{x: 1.0, y: 0.0};
     /// Length one vector in the positive y direction.
     pub const UP: Vector2 = Vector2{x: 0.0, y: 1.0};
-    /// Vector where all componenets are of value zero.
+    /// Vector where all components are equal to zero.
     pub const ZERO: Vector2 = Vector2{x: 0.0, y: 0.0};
 
     /// Return a new two dimensional vector class.
@@ -29,11 +29,6 @@ impl Vector2 {
     /// ```
     /// use barn::math::vector2::Vector2;
     /// let diagonal = Vector2::new(1.0, 1.0);
-    /// ```
-    /// ```
-    /// // Common vector values are also provided.
-    /// use barn::math::vector2::Vector2;
-    /// let jump_vector = Vector2::UP;
     /// ```
     pub const fn new(x: f32, y: f32) -> Vector2 {
         Vector2 {
