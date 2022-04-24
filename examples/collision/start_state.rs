@@ -2,6 +2,7 @@
 use crate::player::PLAYER_SPEED;
 use crate::tile::{Tile, TileType};
 use crate::player::Player;
+
 use barn::graphics::fill_type::FillType;
 use barn::input::SdlKeycode;
 use barn::math::bounding_box_2d::BoundingBox2D;
