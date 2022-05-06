@@ -1,4 +1,4 @@
-# Silo
+# Barn
 
 Retro 2D game development framework. Heavily inspired by XNA/LibGDX.
 
