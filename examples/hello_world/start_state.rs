@@ -18,7 +18,7 @@ impl State<BarnContext> for StartState {
 
         let font = context.load_font(self.font_details);
         bgfx.sdl.set_draw_color(Color::BLACK);
-        bgfx.sdl.draw_text("Hello World!", font,250.0,250.0, true, true);
+        bgfx.sdl.draw_text("Hello World!", font,250.0,250.0, 0.5, 0.5, true, true);
 
         bgfx.sdl.present();
     }
