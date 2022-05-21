@@ -1,26 +1,8 @@
-# Silo
+# Barn
 
 Retro 2D game development framework. Heavily inspired by XNA/LibGDX.
 
 This is a personal project not intended for widespread use, but feel free to poke around.
-
-## Features
-
-- Project Templating
-    - Quick setup via CLI
-    - Provides game loop, graphics, audio, input, and windowing.
-- Cross-Platform
-    - Linux
-    - Windows
-    - MacOS
-- Game Utilites
-    - Math Library
-    - Audio/Input/Windowing/GameLoop Management
-    - Sprite Batching
-    - Custom Content Pipeline
-- Live Code Reload
-
-## Setup 
 
 ### SDL2
 
