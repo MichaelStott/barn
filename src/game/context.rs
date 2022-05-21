@@ -1,8 +1,6 @@
-use std::any::Any;
-
 use sdl2::EventPump;
 
-use crate::graphics::barn_gfx::BarnGFX;
+use crate::{graphics::barn_gfx::BarnGFX};
 use super::state::State;
 
 pub trait Context { 
