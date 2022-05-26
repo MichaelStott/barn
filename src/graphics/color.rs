@@ -68,6 +68,24 @@ impl Color {
         }
     }
 
+    pub fn from_rgb(r: u32, g: u32, b: u32) -> Color {
+        Color::clamp(&mut Color {
+            r: r as f32/ 255.0,
+            g: g as f32/ 255.0,
+            b: b as f32 / 255.0,
+            a: 1.0
+        })
+    }
+
+    pub fn from_rgba(r: u32, g: u32, b: u32, a: u32) -> Color {
+        Color::clamp(&mut Color {
+            r: r as f32/ 255.0,
+            g: g as f32/ 255.0,
+            b: b as f32 / 255.0,
+            a: a as f32 / 255.0
+        })
+    }
+
     pub fn clamp (color: &mut Color) -> Color {
 		if color.r < 0.0 {
             color.r = 0.0;
