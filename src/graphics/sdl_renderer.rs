@@ -13,6 +13,7 @@ use sdl2::render::TextureCreator;
 use sdl2::video::Window;
 use sdl2::render::Canvas;
 
+use super::SdlBlendType;
 use super::sdl_sprite::SdlSprite;
 pub struct SDLRenderer {
     canvas: Canvas<Window>,
@@ -38,6 +39,10 @@ impl SDLRenderer {
             (color.g * 255.0) as u8, 
             (color.b * 255.0) as u8,  
             (color.a * 255.0) as u8));
+    }
+
+    pub fn set_blend_mode(&mut self, mode: SdlBlendType) {
+        self.canvas.set_blend_mode(mode);
     }
 
     pub fn clear(&mut self) {
