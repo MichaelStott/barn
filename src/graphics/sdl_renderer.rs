@@ -110,7 +110,7 @@ impl SDLRenderer {
             .unwrap();
     }
 
-    pub fn draw_text(&mut self, text: &str, font: &SdlFont, x: f32, y: f32, scale_x: f32, scale_y: f32, center_x: bool, center_y: bool) {
+    pub fn render_text(&mut self, text: &str, font: &SdlFont) -> (SdlTexture, u32, u32) {
         let texture_creator = self.canvas.texture_creator();
         let text_rend = font
             .render(text)
@@ -121,13 +121,18 @@ impl SDLRenderer {
                 (self.draw_color.a * 255.0) as u8))
             .unwrap();
         let text_tex = texture_creator.create_texture_from_surface(&text_rend).unwrap();
+        (text_tex, text_rend.size().0, text_rend.size().1)
+    }
+
+    pub fn draw_text(&mut self, text: &str, font: &SdlFont, x: f32, y: f32, scale_x: f32, scale_y: f32, center_x: bool, center_y: bool) {
+        let (text_tex, width, height) = self.render_text(text, font);
         let mut x_offset: f32 = 0.0;
         if center_x {
-            x_offset = text_rend.size().0 as f32 * scale_x / -2.0
+            x_offset = width as f32 * scale_x / -2.0
         }
         let mut y_offset: f32 = 0.0;
         if center_y {
-            y_offset = text_rend.size().1 as f32 * scale_y / -2.0
+            y_offset = height as f32 * scale_y / -2.0
         }
         self.canvas
             .copy(
@@ -136,8 +141,8 @@ impl SDLRenderer {
                 Rect::new(
                     (x + x_offset) as i32,
                     (y + y_offset) as i32,
-                    (text_rend.size().0 as f32 * scale_x )as u32,
-                    (text_rend.size().1 as f32 * scale_y) as u32,
+                    (width as f32 * scale_x )as u32,
+                    (height as f32 * scale_y) as u32,
                 ),
             )
             .unwrap();
