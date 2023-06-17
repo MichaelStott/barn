@@ -25,8 +25,8 @@ pub fn close() {
     }
 }
 
-pub fn play_music(file: String) {
-    sdl2::mixer::Music::from_file(file).unwrap();
+pub fn play_music(file: String, loops: i32) {
+    sdl2::mixer::Music::from_file(file).unwrap().play(loops);
 }
 
 pub fn play_sound(sound_fx: SdlSound, channel: i32) {
