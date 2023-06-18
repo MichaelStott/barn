@@ -1,4 +1,4 @@
-use sdl2::mixer::{AudioFormat, InitFlag, AUDIO_S16LSB, DEFAULT_CHANNELS};
+use sdl2::mixer::{AudioFormat, InitFlag, AUDIO_S16LSB, DEFAULT_CHANNELS, Music};
 
 const FREQUENCY: i32 = 44_100;
 const FORMAT: AudioFormat = AUDIO_S16LSB; 
@@ -8,6 +8,7 @@ const CHUNK_SIZE: i32 = 1_024;
 static mut MIXER_INIT: bool = false;
 
 pub type SdlSound = sdl2::mixer::Chunk;
+pub type SdlMusic = Music<'static>;
 
 pub fn init(number_of_channels: i32) {
     sdl2::mixer::open_audio(FREQUENCY, FORMAT, CHANNELS, CHUNK_SIZE).unwrap();
@@ -25,8 +26,8 @@ pub fn close() {
     }
 }
 
-pub fn play_music(file: String, loops: i32) {
-    sdl2::mixer::Music::from_file(file).unwrap().play(loops);
+pub fn load_music(file: String) ->  SdlMusic {
+    Music::from_file(file).unwrap()
 }
 
 pub fn play_sound(sound_fx: SdlSound, channel: i32) {
