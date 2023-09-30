@@ -27,6 +27,7 @@ name = "hello_world"
 
 [[example]]
 name = "snow_scene"
+path = "examples/snow_scene/main.rs"
 
 [[example]]
 name = "sprite_animation"

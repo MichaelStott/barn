@@ -1,5 +1,5 @@
 use crate::graphics::SdlTexture;
-use crate::audio::SdlSound;
+use crate::audio::{SdlSound, SdlMusic, load_music};
 use crate::fonts::{SdlFont, TTF_CONTEXT};
 use crate::fonts::font_details::FontDetails;
 use crate::game::game::Game;
@@ -21,6 +21,7 @@ pub struct BarnContext {
     fonts: HashMap<FontDetails, SdlFont>,
     textures: HashMap<String, SdlTexture>,
     sounds: HashMap<String, SdlSound>,
+    music: HashMap<String, SdlMusic>,
     pub input: KeyboardHandler,
 }
 
@@ -57,6 +58,7 @@ impl BarnContext {
             textures: HashMap::new(),
             sounds: HashMap::new(),
             fonts: HashMap::new(),
+            music: HashMap::new(),
         }
     }
 
@@ -66,6 +68,14 @@ impl BarnContext {
             self.sounds.insert(path.clone(), sound);
         }
         self.sounds.get_mut(&path).unwrap()
+    }
+
+    pub fn load_music(&mut self, path: String) -> &mut SdlMusic {
+        if !self.music.contains_key(&path) {
+            let music = load_music(&path);
+            self.music.insert(path.clone(), music);
+        }
+        self.music.get_mut(&path).unwrap()
     }
 
     pub fn load_texture(&mut self, path: String) -> &mut SdlTexture {

@@ -36,7 +36,7 @@ lib: ## Download SDL2 dependencies
 	@tar -C lib --strip-components=4 -zxf lib/mix.zip SDL2_mixer-2.6.3/lib/x64/optional/libopus-0.dll
 	@tar -C lib --strip-components=4 -zxf lib/mix.zip SDL2_mixer-2.6.3/lib/x64/optional/libopusfile-0.dll
 	@echo off
-##	@del /S /Q lib\*.zip >nul 2>&1
+	@del /S /Q lib\*.zip >nul 2>&1
 
 update: ## Update project dependencies
 	@cargo update
@@ -46,6 +46,9 @@ build: ## Pull dependencies and build project
 
 dev: ## Run project in dev mode
 	cargo run
+
+example: ## Run project in dev mode
+	cargo run --example snow_scene
 	
 profile: ## Locally profile the project
 	cargo flamegraph --dev

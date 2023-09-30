@@ -26,7 +26,7 @@ pub fn close() {
     }
 }
 
-pub fn load_music(file: String) ->  SdlMusic {
+pub fn load_music(file: &String) ->  SdlMusic {
     Music::from_file(file).unwrap()
 }
 

@@ -3,4 +3,5 @@ Cargo.lock
 # Ignore SDL2 dependencies
 /*.dll
 /*.lib
+lib
 README-SDL.txt
