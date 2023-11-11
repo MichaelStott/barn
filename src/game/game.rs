@@ -89,8 +89,6 @@ impl Game {
         mut state: Box<dyn State<BarnContext>>,
     ) -> Result<(), String> {
         state.on_enter(&mut context);
-        // NOTE: This probably shouldn't happen here...
-        audio::init(8);
         // Initialize timestep marker... (first timestep is always zero)
         let mut prev: Option<Duration> = None;
         // Main game loop.
