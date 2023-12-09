@@ -5,7 +5,7 @@ export SDL_IMG_URL?=https://github.com/libsdl-org/SDL_image/releases/download/re
 export SDL_MIX_URL?=https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.6.3/SDL2_mixer-devel-2.6.3-VC.zip
 
 # Include lib and dll files for compilation and execution.
-export RUSTFLAGS=-L lib"
+export RUSTFLAGS=-L lib
 export SDL2_DIR="./lib"
 export PATH:=$(SDL2_DIR);$(PATH)
 export RUST_LOG=trace
@@ -17,6 +17,7 @@ clean: ## Remove all builds and Rust dependencies
 	@if exist "lib" del /S /Q lib >nul 2>&1
 	@if exist "lib"  @rmdir /S /Q lib >nul 2>&1
 
+.PHONY: lib
 lib: ## Download SDL2 dependencies
 	@if not exist "lib" mkdir lib
 	@curl -s -L --url $(SDL_URL) -o lib/sdl2.zip
