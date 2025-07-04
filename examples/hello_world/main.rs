@@ -1,18 +1,15 @@
-extern crate barn;
+use barn::game::game::Game;
+use crate::start_state::StartState;
+use barn::game::state::State;
+use barn::game::context::BarnContext;
 
 mod start_state;
 
-use barn::game::barn_context::BarnContext;
-
-use crate::barn::game::game::Game;
-use crate::barn::game::state::State;
-use crate::start_state::StartState;
-
-fn main() {
-    let mut game = Game::new(&String::from("Hello World!"), 500, 500, false);
-
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let game = Game::new()?;
     let state: Box<dyn State<BarnContext>> = Box::new(StartState::new());
-    let context = BarnContext::new(&mut game);
-
-    game.run(context, state).unwrap();
+    game.run(state)?;
+    
+    Ok(())
 }

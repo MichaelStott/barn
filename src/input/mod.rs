@@ -1,3 +1,4 @@
 pub mod keyboard_handler;
 
-pub type SdlKeycode = sdl2::keyboard::Keycode;
+pub use keyboard_handler::KeyboardHandler;
+pub type Keycode = winit::keyboard::NamedKey;

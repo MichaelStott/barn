@@ -9,10 +9,7 @@ use crate::barn::game::state::State;
 use crate::start_state::StartState;
 
 fn main() {
-    let mut game = Game::new(&String::from("Snow Scene"), 500, 500, false);
-
+    let game = Game::new().expect("Failed to create game");
     let state: Box<dyn State<BarnContext>> = Box::new(StartState::new());
-    let context = BarnContext::new(&mut game);
-
-    game.run(context, state).unwrap();
+    game.run(state).expect("Failed to run game");
 }

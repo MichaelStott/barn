@@ -1,9 +1,10 @@
 pub mod barn_gfx;
 pub mod color;
 pub mod fill_type;
-pub mod sdl_renderer;
-pub mod sdl_sprite;
+pub mod wgpu_renderer;
+pub mod wgpu_sprite;
+pub mod texture;
 
-pub type SdlRect = sdl2::rect::Rect;
-pub type SdlTexture = sdl2::render::Texture;
-pub type SdlBlendType = sdl2::render::BlendMode;
+pub type Rect = (f32, f32, f32, f32); // x, y, width, height
+pub type Texture = wgpu::Texture;
+pub type BlendType = wgpu::BlendState;

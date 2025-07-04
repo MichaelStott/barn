@@ -1,47 +1,53 @@
-use sdl2::keyboard::Keycode;
-use sdl2::EventPump;
-
-use std::collections::HashSet;
+use winit::event::{ElementState, KeyEvent, DeviceEvent};
+use winit::keyboard::NamedKey;
+use std::collections::HashMap;
 
 pub struct KeyboardHandler {
-    new_keys: HashSet<Keycode>,
-    prev_keys: HashSet<Keycode>,
-    current_keys: HashSet<Keycode>,
+    pub keys: HashMap<NamedKey, bool>,
+    pub prev_keys: HashMap<NamedKey, bool>,
 }
 
 impl KeyboardHandler {
-    pub fn new() -> KeyboardHandler {
+    pub fn new() -> Self {
         KeyboardHandler {
-            new_keys: HashSet::new(),
-            prev_keys: HashSet::new(),
-            current_keys: HashSet::new(),
+            keys: HashMap::new(),
+            prev_keys: HashMap::new(),
         }
     }
 
-    pub fn update(&mut self, events: &mut EventPump) {
-        let keys: HashSet<Keycode> = events
-            .keyboard_state()
-            .pressed_scancodes()
-            .filter_map(Keycode::from_scancode)
-            .collect();
-        self.new_keys = &keys - &self.prev_keys;
-        self.prev_keys = &self.prev_keys - &keys;
-        self.current_keys = keys;
+    pub fn handle_event(&mut self, event: &KeyEvent) {
+        println!("[DEBUG] handle_event: logical_key={:?}, state={:?}", event.logical_key, event.state);
+        if let Some(keycode) = match &event.logical_key {
+            winit::keyboard::Key::Character(_) => None,
+            winit::keyboard::Key::Named(named) => Some(*named),
+            winit::keyboard::Key::Unidentified(_) => None,
+            winit::keyboard::Key::Dead(_) => None,
+        } {
+            println!("[DEBUG] handle_event: mapped keycode={:?}", keycode);
+            self.keys.insert(keycode, event.state == ElementState::Pressed);
+        }
+        println!("[DEBUG] handle_event: keys HashMap = {:?}", self.keys);
     }
 
-    pub fn refresh_prev(&mut self) {
-        self.prev_keys = self.current_keys.clone();
+    pub fn handle_device_event(&mut self, _event: &DeviceEvent) {
+        // Handle device events if needed
     }
 
-    pub fn key_pressed(&mut self, key: &Keycode) -> bool {
-        self.current_keys.contains(key)
+    pub fn is_key_pressed(&self, key: NamedKey) -> bool {
+        let value = *self.keys.get(&key).unwrap_or(&false);
+        println!("[DEBUG] is_key_pressed: key={:?}, value={}", key, value);
+        value
     }
 
-    pub fn key_just_pressed(&mut self, key: &Keycode) -> bool {
-        self.new_keys.contains(key) && !self.prev_keys.contains(key)
+    pub fn is_key_just_pressed(&self, key: NamedKey) -> bool {
+        *self.keys.get(&key).unwrap_or(&false) && !*self.prev_keys.get(&key).unwrap_or(&false)
     }
 
-    pub fn key_released(&mut self, key: &Keycode) -> bool {
-        !self.new_keys.contains(key) && self.prev_keys.contains(key)
+    pub fn is_key_just_released(&self, key: NamedKey) -> bool {
+        !*self.keys.get(&key).unwrap_or(&false) && *self.prev_keys.get(&key).unwrap_or(&false)
+    }
+
+    pub fn update(&mut self) {
+        self.prev_keys = self.keys.clone();
     }
 }

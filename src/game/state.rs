@@ -1,13 +1,9 @@
-use crate::graphics::barn_gfx::BarnGFX;
-use crate::game::context::Context;
-
-pub trait State<T: Context> {
-    
+pub trait State<T> {
     // Update game logic.
     fn update(&mut self, context: &mut T, dt: f32) -> Option<Box<dyn State<T>>>;
 
     // Render the game entities.
-    fn draw(&mut self, context: &mut T, bgfx: &mut BarnGFX);
+    fn render(&mut self, context: &mut T, renderer: &mut crate::graphics::wgpu_renderer::WgpuRenderer);
 
     // Perform any initialization here.
     fn on_enter(&mut self, context: &mut T);
