@@ -2,7 +2,7 @@ use crate::audio::AudioManager;
 use crate::graphics::wgpu_renderer::WgpuRenderer;
 use crate::input::KeyboardHandler;
 use crate::game::state::State;
-use crate::game::barn_context::BarnContext;
+use crate::game::context::Context;
 use std::time::Instant;
 use std::rc::Rc;
 use std::cell::RefCell;
@@ -13,18 +13,21 @@ use winit::{
 };
 use std::sync::Arc;
 
-pub struct Game {
+pub struct Game<C: Context> {
     pub renderer: Option<WgpuRenderer>,
     pub keyboard: Rc<RefCell<KeyboardHandler>>,
     pub audio_manager: AudioManager,
-    pub context: Option<BarnContext>,
-    pub current_state: Option<Box<dyn State<BarnContext>>>,
+    pub context: Option<C>,
+    pub current_state: Option<Box<dyn State<C>>>,
     pub running: bool,
     pub last_frame_time: Instant,
+    pub window_title: String,
+    pub window_width: u32,
+    pub window_height: u32,
 }
 
-impl Game {
-    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+impl<C: Context> Game<C> {
+    pub fn new(window_title: &str, window_width: u32, window_height: u32) -> Result<Self, Box<dyn std::error::Error>> {
         env_logger::init();
         
         let keyboard = Rc::new(RefCell::new(KeyboardHandler::new()));
@@ -38,24 +41,32 @@ impl Game {
             current_state: None,
             running: true,
             last_frame_time: Instant::now(),
+            window_title: window_title.to_string(),
+            window_width,
+            window_height,
         })
+    }
+    
+    pub fn get_keyboard(&self) -> &Rc<RefCell<KeyboardHandler>> {
+        &self.keyboard
     }
     
     pub fn run(
         mut self,
-        mut initial_state: Box<dyn State<BarnContext>>,
+        mut initial_state: Box<dyn State<C>>,
+        mut context: C,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let event_loop = EventLoop::new()?;
         let window = Arc::new(WindowBuilder::new()
-            .with_title("Barn Game")
-            .with_inner_size(winit::dpi::LogicalSize::new(512.0, 512.0))
+            .with_title(&self.window_title)
+            .with_inner_size(winit::dpi::LogicalSize::new(self.window_width as f64, self.window_height as f64))
             .build(&event_loop)?);
         let window_for_renderer = Arc::clone(&window);
         let (renderer, mut surface, mut config) = WgpuRenderer::new(&window_for_renderer)?;
         self.renderer = Some(renderer);
         
-        // Initialize context with shared keyboard
-        self.context = Some(BarnContext::new(Rc::clone(&self.keyboard)));
+        // Initialize context
+        self.context = Some(context);
         
         // Call on_enter for the initial state
         if let Some(context) = &mut self.context {
@@ -97,7 +108,7 @@ impl Game {
                             if let Some(mut state) = self.current_state.take() {
                                 if let Some(context) = &mut self.context {
                                     // Update state
-                                    if let Some(new_state) = state.update(context, dt) {
+                                    if let Some(new_state) = context.update(&mut state, dt) {
                                         // Call on_exit for current state
                                         state.on_exit(context);
                                         // Set new state and call on_enter
@@ -107,7 +118,7 @@ impl Game {
                                     }
                                     // Render state
                                     if let Some(renderer) = &mut self.renderer {
-                                        state.render(context, renderer);
+                                        context.render_state(&mut state, renderer);
                                     }
                                 }
                                 // Put state back

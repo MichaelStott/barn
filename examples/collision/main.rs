@@ -5,13 +5,15 @@ pub mod tile;
 pub mod player;
 
 use barn::game::barn_context::BarnContext;
+use barn::game::context::Context;
 
 use crate::barn::game::game::Game;
 use crate::barn::game::state::State;
 use crate::start_state::StartState;
 
 fn main() {
-    let game = Game::new().expect("Failed to create game");
+    let game = Game::new("Collision Demo", 512, 512).expect("Failed to create game");
     let state: Box<dyn State<BarnContext>> = Box::new(StartState::new());
-    game.run(state).expect("Failed to run game");
+    let context = BarnContext::new(game.get_keyboard().clone());
+    game.run(state, context).expect("Failed to run game");
 }

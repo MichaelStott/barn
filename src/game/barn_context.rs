@@ -1,7 +1,8 @@
 use crate::audio::AudioManager;
 use crate::input::KeyboardHandler;
 use crate::game::state::State;
-use crate::game::game::Game;
+use crate::game::context::Context;
+use crate::graphics::wgpu_renderer::WgpuRenderer;
 use std::rc::Rc;
 use std::cell::RefCell;
 
@@ -10,16 +11,21 @@ pub struct BarnContext {
     pub keyboard: Rc<RefCell<KeyboardHandler>>,
 }
 
-impl BarnContext {
-    pub fn update(&mut self, state: &mut Box<dyn State<BarnContext>>, dt: f32) -> Option<Box<dyn State<BarnContext>>> {
+impl Context for BarnContext {
+    fn get_input_handler(&mut self) -> std::cell::RefMut<KeyboardHandler> {
+        self.keyboard.borrow_mut()
+    }
+
+    fn update(&mut self, state: &mut Box<dyn State<Self>>, dt: f32) -> Option<Box<dyn State<Self>>> {
         state.update(self, dt)
     }
 
-    pub fn draw(&mut self, state: &mut Box<dyn State<BarnContext>>, renderer: &mut crate::graphics::wgpu_renderer::WgpuRenderer, surface: &mut wgpu::Surface) {
-        // For now, just render the background
-        renderer.render(surface);
+    fn render_state(&mut self, state: &mut Box<dyn State<Self>>, renderer: &mut WgpuRenderer) {
+        state.render(self, renderer);
     }
+}
 
+impl BarnContext {
     pub fn new(keyboard: Rc<RefCell<KeyboardHandler>>) -> Self {
         BarnContext {
             audio_manager: AudioManager::new().unwrap(),
@@ -55,16 +61,7 @@ impl BarnContext {
         self.audio_manager.set_volume(name, volume);
     }
 
-    pub fn load_texture(&mut self, name: &str, path: &str, renderer: &mut crate::graphics::wgpu_renderer::WgpuRenderer) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn load_texture(&mut self, name: &str, path: &str, renderer: &mut WgpuRenderer) -> Result<(), Box<dyn std::error::Error>> {
         renderer.load_texture(path)
-    }
-
-    pub fn get_input_handler(&mut self) -> std::cell::RefMut<KeyboardHandler> {
-        self.keyboard.borrow_mut()
-    }
-
-    pub fn render_state(&mut self, state: &mut Box<dyn State<BarnContext>>, renderer: &mut crate::graphics::wgpu_renderer::WgpuRenderer, surface: &mut wgpu::Surface) {
-        state.render(self, renderer);
-        renderer.render(surface);
     }
 }
