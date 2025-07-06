@@ -6,7 +6,9 @@ use rand::Rng;
 pub struct SnowFallLayer {
     pub snow: Vec<Snow>, 
     pub dir: Vector2,
-    pub color: Color
+    pub color: Color,
+    pub window_width: f32,
+    pub window_height: f32
 }
 
 pub struct Snow {
@@ -14,20 +16,27 @@ pub struct Snow {
     pub speed: f32
 }
 
-const SPACING: f32 =  100.0;
+const SPACING: f32 =  200.0;
 const MAX_VARIANCE: i32 = 50;
 const MIN_VARIANCE: i32 = 25;
 
 impl SnowFallLayer {
 
-    pub fn new(dir: Vector2, color: Color, speed: f32, offset: Vector2) -> SnowFallLayer {
+    pub fn new(dir: Vector2, color: Color, speed: f32, offset: Vector2, window_width: f32, window_height: f32) -> SnowFallLayer {
         let mut layer = SnowFallLayer {
             dir:dir,
             snow: Vec::new(),
-            color: color
+            color: color,
+            window_width,
+            window_height
         };
-        for x in 0..=4 {
-            for y in 0..=4 {
+        
+        // Calculate grid size based on window dimensions
+        let grid_cols = (window_width / SPACING).ceil() as i32;
+        let grid_rows = (window_height / SPACING).ceil() as i32;
+        
+        for x in 0..=grid_cols {
+            for y in 0..=grid_rows {
                 let x_var = rand::thread_rng().gen_range(MIN_VARIANCE..MAX_VARIANCE) as f32 + offset.x;
                 let y_var = rand::thread_rng().gen_range(MIN_VARIANCE..MAX_VARIANCE) as f32 + offset.y;
                 layer.snow.push(Snow {
@@ -42,14 +51,14 @@ impl SnowFallLayer {
     pub fn update(&mut self, dt: f32) {
         for snow in self.snow.iter_mut() {
             snow.pos += self.dir * dt * snow.speed;
-            if snow.pos.y > 516.0 {
-                snow.pos.y -= 512.0;
+            if snow.pos.y > self.window_height + 4.0 {
+                snow.pos.y -= self.window_height;
             }
-            if snow.pos.x > 516.0 {
-                snow.pos.x -= 512.0;
+            if snow.pos.x > self.window_width + 4.0 {
+                snow.pos.x -= self.window_width;
             }
             if snow.pos.x < -4.0 {
-                snow.pos.x += 512.0;
+                snow.pos.x += self.window_width;
             }
         }
     }

@@ -2,29 +2,30 @@
 name = "barn"
 version = "0.1.0"
 authors = ["Michael <stottmichael2@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "Rust Game Framework"
 license = "MIT"
 resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-ordered-float = "2.1.1"
-rand = "0.8.4"
-log = "0.4.14"
-env_logger = "0.9.0"
-freetype-rs = "0.29.0"
-lazy_static = "1.2.0"
-leak = "0.1.2"
-vulkano = "0.33.0"
-
-[dependencies.sdl2]
-version = "0.35.2"
-default-features = false
-features = ["image", "ttf", "mixer", "unsafe_textures"]
+winit = "0.29"
+wgpu = "0.19"
+rodio = "0.17"
+tokio = { version = "1.0", features = ["full"] }
+image = "0.24"
+pollster = "0.3"
+env_logger = "0.10"
+log = "0.4"
+bytemuck = { version = "1.13", features = ["derive"] }
+ab_glyph = "0.2"
+rand = "0.8"
 
 [[example]]
 name = "hello_world"
+
+[[example]]
+name = "simple_window"
 
 [[example]]
 name = "snow_scene"

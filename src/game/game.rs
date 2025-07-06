@@ -1,139 +1,137 @@
-use crate::audio;
-use crate::game::barn_context::BarnContext;
-use crate::game::context::Context;
+use crate::audio::AudioManager;
+use crate::graphics::wgpu_renderer::WgpuRenderer;
+use crate::input::KeyboardHandler;
 use crate::game::state::State;
-use crate::graphics::barn_gfx::BarnGFX;
-use crate::graphics::sdl_renderer::SDLRenderer;
-
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::video::FullscreenType;
-use sdl2::EventPump;
-use std::{
-    iter::FromIterator,
-    sync::Arc,
-    time::{Duration, SystemTime, UNIX_EPOCH},
+use crate::game::barn_context::BarnContext;
+use std::time::Instant;
+use std::rc::Rc;
+use std::cell::RefCell;
+use winit::{
+    event::{Event, WindowEvent},
+    event_loop::EventLoop,
+    window::WindowBuilder,
 };
-use vulkano::instance::{Instance, InstanceCreateInfo, InstanceExtensions};
-use vulkano::swapchain::{Surface, SurfaceApi};
-use vulkano::{Handle, VulkanLibrary, VulkanObject};
+use std::sync::Arc;
 
 pub struct Game {
-    pub bgfx: BarnGFX,
-    events: EventPump,
+    pub renderer: Option<WgpuRenderer>,
+    pub keyboard: Rc<RefCell<KeyboardHandler>>,
+    pub audio_manager: AudioManager,
+    pub context: Option<BarnContext>,
+    pub current_state: Option<Box<dyn State<BarnContext>>>,
+    pub running: bool,
+    pub last_frame_time: Instant,
 }
 
 impl Game {
-    pub fn new(
-        window_title: &String,
-        window_width: u32,
-        window_height: u32,
-        fullscreen: bool,
-    ) -> Self {
-        // Initialize window and graphics context.
-        let sdl = sdl2::init().unwrap();
-        let video_subsys = sdl.video().unwrap();
-        let mut window = video_subsys
-            .window(&window_title, window_width, window_height)
-            .vulkan()
-            .position_centered()
-            .build()
-            .map_err(|e| e.to_string())
-            .unwrap();
-
-        // Handle fullscreen option.
-        if fullscreen {
-            window.set_fullscreen(FullscreenType::True).unwrap();
-        } else {
-            window.set_fullscreen(FullscreenType::Off).unwrap();
-        }
-
-        let instance_extensions =
-            InstanceExtensions::from_iter(window.vulkan_instance_extensions().unwrap());
-
-        let instance = Instance::new(VulkanLibrary::new().unwrap(), {
-            let mut instance_info = InstanceCreateInfo::application_from_cargo_toml();
-            instance_info.enabled_extensions = instance_extensions;
-            instance_info
+    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+        env_logger::init();
+        
+        let keyboard = Rc::new(RefCell::new(KeyboardHandler::new()));
+        let audio_manager = AudioManager::new()?;
+        
+        Ok(Game {
+            renderer: None,
+            keyboard,
+            audio_manager,
+            context: None, // Will be initialized in run() when we have a mutable reference to self
+            current_state: None,
+            running: true,
+            last_frame_time: Instant::now(),
         })
-        .unwrap();
-
-        let surface_handle = window
-            .vulkan_create_surface(instance.handle().as_raw() as _)
-            .unwrap();
-
-        let surface = unsafe {
-            Surface::from_handle(
-                Arc::clone(&instance),
-                <_ as Handle>::from_raw(surface_handle),
-                SurfaceApi::Xlib,
-                None,
-            )
-        };
-
-        // Create graphics context and input event stream.
-        let bgfx = BarnGFX {
-            sdl: SDLRenderer::new(window.into_canvas().build().unwrap()),
-        };
-        let events = sdl.event_pump().unwrap();
-
-        Game {
-            bgfx: bgfx,
-            events: events,
-        }
     }
-
+    
     pub fn run(
-        &mut self,
-        mut context: BarnContext,
-        mut state: Box<dyn State<BarnContext>>,
-    ) -> Result<(), String> {
-        state.on_enter(&mut context);
-        // Initialize timestep marker... (first timestep is always zero)
-        let mut prev: Option<Duration> = None;
-        // Main game loop.
-        'running: loop {
-            // Check if the game loop should be exited.
-            for event in self.events.poll_iter() {
-                match event {
-                    Event::Quit { .. }
-                    | Event::KeyDown {
-                        keycode: Some(Keycode::Escape),
-                        ..
-                    } => break 'running,
-                    _ => {}
-                }
-            }
-            // Determine timestep.
-            let dt = Game::calc_time_step(
-                SystemTime::now().duration_since(UNIX_EPOCH).unwrap(),
-                &mut prev,
-            );
-            // State handling logic.
-            let new_state = context.update(&mut *state, &mut self.events, dt);
-            context.draw(&mut *state, &mut self.bgfx);
-            match new_state {
-                Some(x) => {
-                    state.on_exit(&mut context);
-                    state = x;
-                    state.on_enter(&mut context);
-                    log::debug!("Switched to state: {}", state.get_name());
-                }
-                None => {
-                    // No state change has occurred.
-                }
-            }
+        mut self,
+        mut initial_state: Box<dyn State<BarnContext>>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let event_loop = EventLoop::new()?;
+        let window = Arc::new(WindowBuilder::new()
+            .with_title("Barn Game")
+            .with_inner_size(winit::dpi::LogicalSize::new(512.0, 512.0))
+            .build(&event_loop)?);
+        let window_for_renderer = Arc::clone(&window);
+        let (renderer, mut surface, mut config) = WgpuRenderer::new(&window_for_renderer)?;
+        self.renderer = Some(renderer);
+        
+        // Initialize context with shared keyboard
+        self.context = Some(BarnContext::new(Rc::clone(&self.keyboard)));
+        
+        // Call on_enter for the initial state
+        if let Some(context) = &mut self.context {
+            initial_state.on_enter(context);
         }
-        audio::close();
+        self.current_state = Some(initial_state);
+        
+        event_loop.run(move |event, elwt| {
+            let window = Arc::clone(&window);
+            match event {
+                Event::WindowEvent { event, .. } => {
+                    match event {
+                        WindowEvent::CloseRequested => {
+                            self.running = false;
+                            elwt.exit();
+                        }
+                        WindowEvent::KeyboardInput { event, .. } => {
+                            if let Some(winit::keyboard::NamedKey::Escape) = match &event.logical_key {
+                                winit::keyboard::Key::Character(_) => None,
+                                winit::keyboard::Key::Named(named) => Some(*named),
+                                winit::keyboard::Key::Unidentified(_) => None,
+                                winit::keyboard::Key::Dead(_) => None,
+                            } {
+                                self.running = false;
+                                elwt.exit();
+                            }
+                            self.keyboard.borrow_mut().handle_event(&event);
+                        }
+                        WindowEvent::Resized(new_size) => {
+                            if let Some(renderer) = &mut self.renderer {
+                                renderer.resize(new_size, &mut surface, &mut config);
+                            }
+                        }
+                        WindowEvent::RedrawRequested => {
+                            let now = Instant::now();
+                            let dt = now.duration_since(self.last_frame_time).as_secs_f32();
+                            self.last_frame_time = now;
+                            // Handle state update and rendering
+                            if let Some(mut state) = self.current_state.take() {
+                                if let Some(context) = &mut self.context {
+                                    // Update state
+                                    if let Some(new_state) = state.update(context, dt) {
+                                        // Call on_exit for current state
+                                        state.on_exit(context);
+                                        // Set new state and call on_enter
+                                        let mut next_state = new_state;
+                                        next_state.on_enter(context);
+                                        state = next_state;
+                                    }
+                                    // Render state
+                                    if let Some(renderer) = &mut self.renderer {
+                                        state.render(context, renderer);
+                                    }
+                                }
+                                // Put state back
+                                self.current_state = Some(state);
+                            }
+                            // Present the renderer
+                            if let Some(renderer) = &mut self.renderer {
+                                renderer.present(&mut surface);
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                Event::DeviceEvent { event, .. } => {
+                    self.keyboard.borrow_mut().handle_device_event(&event);
+                }
+                Event::AboutToWait => {
+                    window.request_redraw();
+                    self.keyboard.borrow_mut().update();
+                }
+                _ => {}
+            }
+        })?;
+        
         Ok(())
     }
-
-    fn calc_time_step(now: Duration, prev: &mut Option<Duration>) -> f32 {
-        let mut dt = 0.0;
-        if *prev != None {
-            dt = (now - prev.unwrap()).as_secs_f32();
-        }
-        *prev = Some(now);
-        return dt;
-    }
-}
+} 

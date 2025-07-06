@@ -1,100 +1,70 @@
-use crate::graphics::SdlTexture;
-use crate::audio::{SdlSound, SdlMusic, load_music};
-use crate::fonts::{SdlFont, TTF_CONTEXT};
-use crate::fonts::font_details::FontDetails;
+use crate::audio::AudioManager;
+use crate::input::KeyboardHandler;
+use crate::game::state::State;
 use crate::game::game::Game;
-use crate::input::keyboard_handler::KeyboardHandler;
-
-use sdl2::image::LoadTexture;
-use sdl2::render::TextureCreator;
-use sdl2::ttf::Sdl2TtfContext;
-use sdl2::video::WindowContext;
-
-use std::path::Path;
-use std::collections::HashMap;
-
-use super::context::Context;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 pub struct BarnContext {
-    texture_creator: TextureCreator<WindowContext>,
-    ttf_context: &'static Sdl2TtfContext,
-    fonts: HashMap<FontDetails, SdlFont>,
-    textures: HashMap<String, SdlTexture>,
-    sounds: HashMap<String, SdlSound>,
-    music: HashMap<String, SdlMusic>,
-    pub input: KeyboardHandler,
-}
-
-impl Context for BarnContext {
-    type T = BarnContext;
-
-    fn update(&mut self, state: &mut dyn super::state::State<BarnContext>, event: &mut sdl2::EventPump, dt: f32) -> Option<Box<dyn super::state::State<BarnContext>>>
-    where
-        Self: std::marker::Sized,
-        BarnContext: Context {
-        self.get_input_handler().update(event);
-        state.update(self, dt)
-    }
-
-    fn draw(&mut self, state: &mut dyn super::state::State<BarnContext>, bgfx: &mut crate::graphics::barn_gfx::BarnGFX)
-    where
-        Self: std::marker::Sized,
-        BarnContext: Context {
-        state.draw(self, bgfx);
-        self.get_input_handler().refresh_prev()
-    }
+    pub audio_manager: AudioManager,
+    pub keyboard: Rc<RefCell<KeyboardHandler>>,
 }
 
 impl BarnContext {
+    pub fn update(&mut self, state: &mut Box<dyn State<BarnContext>>, dt: f32) -> Option<Box<dyn State<BarnContext>>> {
+        state.update(self, dt)
+    }
 
-    pub fn new(
-        game: &mut Game
-    ) -> Self {
-        let texture_creator = game.bgfx.sdl.generate_texture_creator();
+    pub fn draw(&mut self, state: &mut Box<dyn State<BarnContext>>, renderer: &mut crate::graphics::wgpu_renderer::WgpuRenderer, surface: &mut wgpu::Surface) {
+        // For now, just render the background
+        renderer.render(surface);
+    }
+
+    pub fn new(keyboard: Rc<RefCell<KeyboardHandler>>) -> Self {
         BarnContext {
-            input: KeyboardHandler::new(),
-            texture_creator: texture_creator,
-            ttf_context: &TTF_CONTEXT,
-            textures: HashMap::new(),
-            sounds: HashMap::new(),
-            fonts: HashMap::new(),
-            music: HashMap::new(),
+            audio_manager: AudioManager::new().unwrap(),
+            keyboard,
         }
     }
 
-    pub fn load_sound(&mut self, path: String) -> &mut SdlSound {
-        if !self.sounds.contains_key(&path) {
-            let sound = sdl2::mixer::Chunk::from_file(Path::new(&path)).unwrap();
-            self.sounds.insert(path.clone(), sound);
-        }
-        self.sounds.get_mut(&path).unwrap()
+    pub fn load_sound(&mut self, name: &str, path: &str, repeat: bool) -> Result<(), Box<dyn std::error::Error>> {
+        self.audio_manager.load_audio(name, path, repeat)
     }
 
-    pub fn load_music(&mut self, path: String) -> &mut SdlMusic {
-        if !self.music.contains_key(&path) {
-            let music = load_music(&path);
-            self.music.insert(path.clone(), music);
-        }
-        self.music.get_mut(&path).unwrap()
+    pub fn play_sound(&mut self, name: &str) -> Result<(), Box<dyn std::error::Error>> {
+        self.audio_manager.play_sound(name)
     }
 
-    pub fn load_texture(&mut self, path: String) -> &mut SdlTexture {
-        if !self.textures.contains_key(&path) {
-            let texture = self.texture_creator.load_texture(Path::new(&path)).unwrap();
-            self.textures.insert(path.clone(), texture);
-        }
-        self.textures.get_mut(&path).unwrap()
+    pub fn play_music(&mut self, name: &str, repeat: bool) -> Result<(), Box<dyn std::error::Error>> {
+        self.audio_manager.play_music(name, repeat)
     }
 
-    pub fn load_font(&mut self, details: FontDetails) -> &SdlFont {
-        if !self.fonts.contains_key(&details) {
-            self.fonts.insert(details.clone(), 
-                self.ttf_context.load_font(details.clone().path, details.clone().size).unwrap());
-        }
-        self.fonts.get_mut(&details).unwrap()
+    pub fn stop_audio(&mut self, name: &str) {
+        self.audio_manager.stop_audio(name);
     }
 
-    pub fn get_input_handler(&mut self) -> &mut KeyboardHandler {
-        &mut self.input
+    pub fn pause_audio(&mut self, name: &str) {
+        self.audio_manager.pause_audio(name);
+    }
+
+    pub fn resume_audio(&mut self, name: &str) {
+        self.audio_manager.resume_audio(name);
+    }
+
+    pub fn set_volume(&mut self, name: &str, volume: f32) {
+        self.audio_manager.set_volume(name, volume);
+    }
+
+    pub fn load_texture(&mut self, name: &str, path: &str, renderer: &mut crate::graphics::wgpu_renderer::WgpuRenderer) -> Result<(), Box<dyn std::error::Error>> {
+        renderer.load_texture(path)
+    }
+
+    pub fn get_input_handler(&mut self) -> std::cell::RefMut<KeyboardHandler> {
+        self.keyboard.borrow_mut()
+    }
+
+    pub fn render_state(&mut self, state: &mut Box<dyn State<BarnContext>>, renderer: &mut crate::graphics::wgpu_renderer::WgpuRenderer, surface: &mut wgpu::Surface) {
+        state.render(self, renderer);
+        renderer.render(surface);
     }
 }
