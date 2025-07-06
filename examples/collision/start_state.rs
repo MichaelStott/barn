@@ -9,6 +9,7 @@ use barn::graphics::barn_gfx::BarnGFX;
 use barn::graphics::color::Color;
 use barn::game::state::State;
 use barn::game::barn_context::BarnContext;
+use barn::game::context::Context;
 use barn::math::vector2::Vector2;
 use winit::keyboard::NamedKey;
 
@@ -23,7 +24,7 @@ impl State<BarnContext> for StartState {
         println!("[DEBUG] dt: {}", dt);
         let mut vel = Vector2::ZERO;
         let delta = dt * PLAYER_SPEED;
-        let mut input_handler = context.get_input_handler();
+        let mut input_handler = Context::get_input_handler(context);
         let down = input_handler.is_key_pressed(NamedKey::ArrowDown);
         let up = input_handler.is_key_pressed(NamedKey::ArrowUp);
         let right = input_handler.is_key_pressed(NamedKey::ArrowRight);

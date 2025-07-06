@@ -25,9 +25,6 @@ rand = "0.8"
 name = "hello_world"
 
 [[example]]
-name = "simple_window"
-
-[[example]]
 name = "snow_scene"
 path = "examples/snow_scene/main.rs"
 
