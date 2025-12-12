@@ -21,7 +21,6 @@ pub struct StartState {
 
 impl State<BarnContext> for StartState {
     fn update(&mut self, context: &mut BarnContext, dt: f32) -> Option<Box<dyn State<BarnContext>>> {
-        println!("[DEBUG] dt: {}", dt);
         let mut vel = Vector2::ZERO;
         let delta = dt * PLAYER_SPEED;
         let mut input_handler = Context::get_input_handler(context);
@@ -29,16 +28,12 @@ impl State<BarnContext> for StartState {
         let up = input_handler.is_key_pressed(NamedKey::ArrowUp);
         let right = input_handler.is_key_pressed(NamedKey::ArrowRight);
         let left = input_handler.is_key_pressed(NamedKey::ArrowLeft);
-        println!("[DEBUG] Keys: Down={}, Up={}, Right={}, Left={}", down, up, right, left);
         if down { vel.y += delta; }
         if up { vel.y -= delta; }
         if right { vel.x += delta; }
         if left { vel.x -= delta; }
-        println!("[DEBUG] Velocity before collision: x={}, y={}", vel.x, vel.y);
-        println!("[DEBUG] Player pos before: x={}, y={}", self.player.bb.origin.x, self.player.bb.origin.y);
         let tiles = &mut [self.tile1.bb.clone(), self.tile2.bb.clone()].to_vec();
         self.player.bb.resolve_bb_intersect(tiles, &mut vel);
-        println!("[DEBUG] Player pos after: x={}, y={}", self.player.bb.origin.x, self.player.bb.origin.y);
         None
     }
 

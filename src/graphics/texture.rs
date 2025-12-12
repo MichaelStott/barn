@@ -74,74 +74,9 @@ impl Texture {
         queue: &wgpu::Queue,
         path: &str,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let abs_path = fs::canonicalize(Path::new(path));
-        println!("Attempting to load image from: {:?}", abs_path);
         let img = image::open(path)?;
-        println!("Image color type for {}: {:?}", path, img.color());
         let rgba = img.into_rgba8();
         let dimensions = rgba.dimensions();
-        println!("Loaded image: {} ({}x{})", path, dimensions.0, dimensions.1);
-        let bytes = rgba.as_raw();
-        println!("First 16 bytes: {:?}", &bytes[..16.min(bytes.len())]);
-        // Debug: count non-zero pixels and print alpha histogram
-        let mut non_zero_pixels = 0;
-        let mut alpha_hist = [0u32; 256];
-        for chunk in bytes.chunks(4) {
-            if chunk[0] != 0 || chunk[1] != 0 || chunk[2] != 0 || chunk[3] != 0 {
-                non_zero_pixels += 1;
-            }
-            alpha_hist[chunk[3] as usize] += 1;
-        }
-        println!("Non-zero RGBA pixels: {} / {}", non_zero_pixels, bytes.len() / 4);
-        println!("Alpha histogram (nonzero only):");
-        for (i, &count) in alpha_hist.iter().enumerate() {
-            if count > 0 {
-                println!("  alpha={}: {}", i, count);
-            }
-        }
-        
-        // Debug: show some sample pixels from the image
-        println!("Sample pixels from {}:", path);
-        for i in 0..10.min(bytes.len() / 4) {
-            let pixel = &bytes[i * 4..(i + 1) * 4];
-            println!("  pixel {}: R={}, G={}, B={}, A={}", i, pixel[0], pixel[1], pixel[2], pixel[3]);
-        }
-        
-        // Also show some pixels from the middle of the image
-        let mid_pixel = bytes.len() / 8;
-        for i in 0..10 {
-            let pixel_idx = mid_pixel + i * 4;
-            if pixel_idx + 3 < bytes.len() {
-                let pixel = &bytes[pixel_idx..pixel_idx + 4];
-                println!("  mid pixel {}: R={}, G={}, B={}, A={}", i, pixel[0], pixel[1], pixel[2], pixel[3]);
-            }
-        }
-        
-        // For ground texture, show pixels from the bottom half (where the visible part is)
-        if path.contains("snow_ground") {
-            println!("=== GROUND TEXTURE DEBUG ===");
-            println!("Ground texture bottom half pixels:");
-            let bottom_start = bytes.len() / 2; // Start from middle (bottom half)
-            for i in 0..20 {
-                let pixel_idx = bottom_start + i * 4;
-                if pixel_idx + 3 < bytes.len() {
-                    let pixel = &bytes[pixel_idx..pixel_idx + 4];
-                    println!("  bottom pixel {}: R={}, G={}, B={}, A={}", i, pixel[0], pixel[1], pixel[2], pixel[3]);
-                }
-            }
-            
-            // Also show some pixels from the very bottom (last few rows)
-            println!("Ground texture very bottom pixels:");
-            let very_bottom_start = bytes.len() - (512 * 4 * 4); // Last 4 rows
-            for i in 0..20 {
-                let pixel_idx = very_bottom_start + i * 4;
-                if pixel_idx + 3 < bytes.len() {
-                    let pixel = &bytes[pixel_idx..pixel_idx + 4];
-                    println!("  very bottom pixel {}: R={}, G={}, B={}, A={}", i, pixel[0], pixel[1], pixel[2], pixel[3]);
-                }
-            }
-            println!("=== END GROUND TEXTURE DEBUG ===");
-        }
         
         let size = wgpu::Extent3d {
             width: dimensions.0,

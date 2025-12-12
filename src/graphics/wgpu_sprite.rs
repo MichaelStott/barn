@@ -86,23 +86,15 @@ impl WgpuSprite {
         let v0 = self.src.1 / tex_h as f32;
         let u1 = (self.src.0 + self.src.2) / tex_w as f32;
         let v1 = (self.src.1 + self.src.3) / tex_h as f32;
-        println!("[DEBUG] Sprite UVs: u0={}, v0={}, u1={}, v1={}", u0, v0, u1, v1);
-        println!("[DEBUG] Sprite texture_path: {:?}", self.texture_path);
         let x = self.dst.0;
         let y = self.dst.1;
         let w = self.dst.2;
         let h = self.dst.3;
         
-        println!("[DEBUG] create_vertex_buffer: src={:?}, dst={:?}, texture_size={:?}", &self.src, &self.dst, (tex_w, tex_h));
-        println!("[DEBUG] UV coordinates: u0={}, v0={}, u1={}, v1={}", u0, v0, u1, v1);
-        println!("[DEBUG] Position coordinates: x={}, y={}, w={}, h={}", x, y, w, h);
-        
         let x1 = (x / screen_width) * 2.0 - 1.0;
         let y1 = 1.0 - (y / screen_height) * 2.0;
         let x2 = ((x + w) / screen_width) * 2.0 - 1.0;
         let y2 = 1.0 - ((y + h) / screen_height) * 2.0;
-        
-        println!("[DEBUG] NDC coordinates: x1={}, y1={}, x2={}, y2={}", x1, y1, x2, y2);
         
         // Create sprite vertices (two triangles)
         let vertices = vec![
@@ -113,9 +105,6 @@ impl WgpuSprite {
             TextVertex { position: [x2, y2], color: self.color, tex_coords: [u1, v1] },
             TextVertex { position: [x1, y2], color: self.color, tex_coords: [u0, v1] },
         ];
-        
-        println!("[DEBUG] Vertex positions: TL={:?}, TR={:?}, BL={:?}, BR={:?}", 
-                 vertices[0].position, vertices[1].position, vertices[2].position, vertices[4].position);
         
         device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Sprite Vertex Buffer"),

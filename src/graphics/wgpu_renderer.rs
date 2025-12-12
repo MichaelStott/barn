@@ -578,12 +578,8 @@ impl WgpuRenderer {
                         glyph_info.advance
                     };
                     current_x += advance;
-                } else {
-                    println!("Character '{}' not found in atlas!", c);
                 }
             }
-        } else {
-            println!("No font atlas available!");
         }
         if !self.text_vertices.is_empty() {
             self.current_text_vertex_buffer = Some(
